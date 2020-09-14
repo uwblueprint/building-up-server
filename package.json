@@ -1,0 +1,36 @@
+{
+  "name": "building-up-server",
+  "version": "1.0.0",
+  "description": "The Server Repo for Building Up",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node ./src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uwblueprint/building-up-server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/uwblueprint/building-up-server/issues"
+  },
+  "homepage": "https://github.com/uwblueprint/building-up-server#readme",
+  "devDependencies": {
+    "@types/node": "^14.10.1",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.2"
+  },
+  "dependencies": {
+    "@types/body-parser": "^1.19.0",
+    "@types/cors": "^2.8.7",
+    "@types/express-session": "^1.17.0",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "helmet": "^4.1.1",
+    "http": "0.0.1-security"
+  }
+}
