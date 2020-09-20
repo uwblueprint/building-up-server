@@ -1,18 +1,36 @@
-const { makeExecutableSchema, addSchemaLevelResolveFunction } = require('apollo-server')
+const { makeExecutableSchema, addSchemaLevelResolveFunction, gql } = require('apollo-server')
 const { merge } = require('lodash')
 const {
-    helloWorldTypeDefs
+    helloWorldTypeDefs,
+    teamsTypeDefs
 } = require("./schemas")
 const {
-    helloWorldResolvers
+    helloWorldResolvers,
+    teamsResolvers
 } = require("./resolvers")
+
+// Base query schema, other queries extend this
+const Query = gql`
+  type Query {
+    _empty: String
+  }`
+
+// Base mutation schema, other mutations extend this
+const Mutation = gql`
+  type Mutation {
+    _empty: String
+  }`
 
 const schema = makeExecutableSchema({
     typeDefs: [
-        helloWorldTypeDefs
+        Query,
+        Mutation,
+        helloWorldTypeDefs,
+        teamsTypeDefs
     ],
     resolvers: merge(
-        helloWorldResolvers
+        helloWorldResolvers,
+        teamsResolvers
     )
 })
 

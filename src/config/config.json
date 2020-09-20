@@ -1,24 +1,23 @@
-require('dotenv').config();
 {
   "development": {
     "username": "alfm",
-    "password": null,
+    "password": "buildingup",
     "database": "building_up_dev",
-    "host": "127.0.0.1",
+    "host": "building-up-db",
     "dialect": "postgres"
   },
   "test": {
-    "username": "root",
-    "password": null,
-    "database": "database_test",
-    "host": "127.0.0.1",
+    "username": "alfm",
+    "password": "buildingup",
+    "database": "building_up_dev",
+    "host": "localhost",
     "dialect": "postgres"
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
+    "username": "alfm",
+    "password": "buildingup",
+    "database": "building_up_dev",
+    "host": "localhost",
     "dialect": "postgres"
   }
 }

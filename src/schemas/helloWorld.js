@@ -1,7 +1,7 @@
 const { gql } = require('apollo-server')
 
 const helloWorldTypeDefs = gql`
-    type Query {
+    extend type Query {
         hello: String
     }
 `;
