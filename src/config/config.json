@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "alfm",
+    "password": "buildingup",
+    "database": "building_up_dev",
+    "host": "building-up-db",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "alfm",
+    "password": "buildingup",
+    "database": "building_up_dev",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "alfm",
+    "password": "buildingup",
+    "database": "building_up_dev",
+    "host": "localhost",
+    "dialect": "postgres"
+  }
+}
