@@ -2,11 +2,13 @@ const { makeExecutableSchema, addSchemaLevelResolveFunction, gql } = require('ap
 const { merge } = require('lodash')
 const {
     helloWorldTypeDefs,
-    teamsTypeDefs
+    teamsTypeDefs,
+    authTypeDefs,
 } = require("./schemas")
 const {
     helloWorldResolvers,
-    teamsResolvers
+    teamsResolvers,
+    authResolvers,
 } = require("./resolvers")
 
 // Base query schema, other queries extend this
@@ -26,11 +28,13 @@ const schema = makeExecutableSchema({
         Query,
         Mutation,
         helloWorldTypeDefs,
-        teamsTypeDefs
+        teamsTypeDefs,
+        authTypeDefs,
     ],
     resolvers: merge(
         helloWorldResolvers,
-        teamsResolvers
+        teamsResolvers,
+        authResolvers,
     )
 })
 
