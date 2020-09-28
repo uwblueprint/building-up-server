@@ -39,7 +39,11 @@ services:
         image: "redis:alpine"
         ports:
         - "6379:6379"
-        command: ["redis-server", "--port", "6379"]
+        command: ["redis-server", "--port", "6379", "--appendonly", "yes"]
+        volumes:
+          - type: volume
+            source: redis
+            target: /data
         expose: 
         - 6379
 
@@ -47,5 +51,5 @@ services:
 volumes:
     postgresql:
     postgresql_data:
-
+    redis:
           
