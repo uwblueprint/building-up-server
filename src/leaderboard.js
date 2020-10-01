@@ -1,21 +1,33 @@
 const { redis } = require('./redis');
 
-const addTeam = (org, score, name) => {
-    redis.zadd([org, score, name])
-        .then(console.log)
-        .catch(console.error);
+// Returns int containing the number of new teams added
+const addTeam = async (org, score, name) => {
+    try {
+        const res = await redis.zadd([org, score, name]);
+        return res;
+    } catch (err) {
+        console.error(err);
+    }
 }
 
-const updateTeamScore = (org, score, name) => {
-    redis.zincrby([org, score, name])
-        .then(console.log)
-        .then(console.error)
+// Returns int containing new score after update
+const updateTeamScore = async (org, score, name) => {
+    try {
+        const res = await redis.zincrby([org, score, name]);
+        return parseInt(res);
+    } catch (err) {
+        console.error(err);
+    }
 }
 
-const getSortedTeamsByScore = (org) => {
-    redis.zrevrange([org, 0, -1])
-        .then(console.log)
-        .then(console.error)
+// Returns array of team names sorted by score descending
+const getSortedTeamsByScore = async (org) => {
+    try {
+        const res = await redis.zrevrange([org, 0, -1]);
+        return res;
+    } catch (err) {
+        console.error(err);
+    }
 }
 
 exports.addTeam = addTeam;
