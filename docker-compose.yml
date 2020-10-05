@@ -16,6 +16,8 @@ services:
               source: ./
               target: /usr/src/app
             - /usr/src/node_modules
+        env_file: 
+            - ./src/keys.env
     # Database
     building-up-db:
         image: postgres

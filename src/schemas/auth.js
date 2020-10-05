@@ -10,7 +10,7 @@ const authTypeDefs = gql`
     }
 
     extend type Query {
-        getActiveUser(id: Int!): User
+        getActiveUser: User
     }
 
     extend type Mutation {
