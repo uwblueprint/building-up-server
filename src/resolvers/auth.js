@@ -21,7 +21,8 @@ const authResolvers = {
           firstName,
           lastName,
           email,
-          password: hashedPassword
+          password: hashedPassword,
+          role: "USER"
         });
       } catch (error) {
         console.log(error)
