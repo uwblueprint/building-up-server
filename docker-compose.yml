@@ -4,6 +4,7 @@ services:
     building-up-server:
         depends_on:
             - building-up-db
+            - building-up-redis
         build:
             context: .
             dockerfile: Dockerfile
@@ -36,8 +37,21 @@ services:
             target: /var/lib/postgresql/data
         expose:
         - 5432
+    building-up-redis:
+        image: "redis:alpine"
+        ports:
+        - "6379:6379"
+        command: ["redis-server", "--port", "6379", "--appendonly", "yes"]
+        volumes:
+          - type: volume
+            source: redis
+            target: /data
+        expose: 
+        - 6379
+
 
 volumes:
     postgresql:
     postgresql_data:
+    redis:
           
