@@ -21,7 +21,8 @@ const authResolvers = {
           firstName,
           lastName,
           email,
-          password: hashedPassword
+          password: hashedPassword,
+          role: "USER"
         });
       } catch (error) {
         console.log(error)
@@ -34,7 +35,7 @@ const authResolvers = {
         if (!user) {
           return null;
         }
-        const valid = bcrypt.compareSync(password, user.password); // true
+        const valid = bcrypt.compareSync(password, user.password); 
         if (!valid) {
           return null;
         }

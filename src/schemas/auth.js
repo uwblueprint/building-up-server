@@ -7,6 +7,8 @@ const authTypeDefs = gql`
         lastName: String!
         email: String!
         password: String!
+        role: String!
+        teamId: Int!
     }
 
     extend type Query {

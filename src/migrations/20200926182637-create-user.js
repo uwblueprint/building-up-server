@@ -15,10 +15,18 @@ module.exports = {
         type: Sequelize.STRING
       },
       email: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       password: {
+        allowNull: false,
         type: Sequelize.STRING
+      },
+      role: {
+        type: Sequelize.STRING
+      },
+      teamId: {
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
