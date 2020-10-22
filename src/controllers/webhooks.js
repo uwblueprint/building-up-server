@@ -1,4 +1,4 @@
-const stripeWebhook = (req, res) => {
+const shopifyWebhook = (req, res) => {
   let event;
   try {
     event = JSON.parse(req.body);
@@ -26,4 +26,4 @@ const stripeWebhook = (req, res) => {
   res.json({ received: true });
 };
 
-exports.stripeWebhook = stripeWebhook;
+exports.shopifyWebhook = shopifyWebhook;

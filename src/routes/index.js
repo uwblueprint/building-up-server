@@ -1,14 +1,14 @@
 const express = require("express");
-const { stripeWebhook } = require("../controllers");
+const { shopifyWebhook } = require("../controllers");
 
 const bodyParser = require("body-parser");
 
 const router = express.Router();
 
 router.post(
-  "/stripeWebhook",
+  "/shopifyWebhook",
   bodyParser.raw({ type: "application/json" }),
-  stripeWebhook
+  shopifyWebhook
 );
 
 module.exports = router;

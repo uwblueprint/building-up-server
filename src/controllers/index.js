@@ -1,3 +1,3 @@
-const { stripeWebhook } = require("./webhooks");
+const { shopifyWebhook } = require("./webhooks");
 
-exports.stripeWebhook = stripeWebhook;
+exports.shopifyWebhook = shopifyWebhook;
