@@ -5,14 +5,30 @@ const shopifyWebhook = (req, res) => {
   try {
     event = JSON.parse(req.body);
   } catch (err) {
-    res.status(400).send(`Webhook Error: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // userID stored in first index
-  const userID = event.note_attributes[0].value;
-  // teamID stored in second index
-  const teamID = event.note_attributes[1].value;
+  var userID, teamID;
 
+  // userID stored in first index
+  if (typeof event.note_attributes[0] !== "undefined") {
+    userID = event.note_attributes[0].value;
+  } else {
+    console.error("Error: undefined value in JSON payload");
+    return res
+      .status(400)
+      .send(`Webhook Error: undefined value in JSON payload`);
+  }
+
+  // teamID stored in second index
+  if (typeof event.note_attributes[1] !== "undefined") {
+    teamID = event.note_attributes[1].value;
+  } else {
+    console.error("Error: undefined value in JSON payload");
+    return res
+      .status(400)
+      .send(`Webhook Error: undefined value in JSON payload`);
+  }
   //includes any discounts, excludes tax
   const price = event.subtotal_price;
 
