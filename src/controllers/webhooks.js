@@ -1,3 +1,5 @@
+const models = require("../models");
+
 const shopifyWebhook = (req, res) => {
   let event;
   try {
@@ -6,24 +8,35 @@ const shopifyWebhook = (req, res) => {
     res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Handle the event
-  switch (event.type) {
-    case "payment_intent.succeeded":
-      const paymentIntent = event.data.object;
-      // Then define and call a method to handle the successful payment intent.
-      // handlePaymentIntentSucceeded(paymentIntent);
-      break;
-    case "payment_method.payment_failed":
-      const paymentMethod = event.data.object;
-      // Then define and call a method to handle the successful attachment of a PaymentMethod.
-      // handlePaymentMethodAttached(paymentMethod);
-      break;
-    default:
-      console.log(`Unhandled event type ${event.type}`);
+  // userID stored in first index
+  const userID = event.note_attributes[0].value;
+  // teamID stored in second index
+  const teamID = event.note_attributes[1].value;
+
+  //includes any discounts, excludes tax
+  const price = event.subtotal_price;
+
+  let numberOfItems = 0;
+  for (i = 0; i < event.line_items.length; i++) {
+    numberOfItems += event.line_items[i].quantity;
   }
 
-  // Return a res to acknowledge receipt of the event
-  res.json({ received: true });
+  models.Orders.create({
+    userID: userID,
+    teamID: teamID,
+    price: price,
+    numberOfItems: numberOfItems
+  })
+    .then(item => {
+      res.json({
+        Message: "Success: created shopify order-payment record",
+        Item: item
+      });
+    })
+    .catch(err => {
+      console.log("Error: failed to create shopify order-payment record");
+      console.error(err);
+    });
 };
 
 exports.shopifyWebhook = shopifyWebhook;
