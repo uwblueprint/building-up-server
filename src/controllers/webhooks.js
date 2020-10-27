@@ -5,6 +5,7 @@ const shopifyWebhook = (req, res) => {
   try {
     event = JSON.parse(req.body);
   } catch (err) {
+    console.error(`Webhook Error: ${err.message}`);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
