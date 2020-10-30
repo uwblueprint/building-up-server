@@ -57,6 +57,9 @@ const shopifyWebhook = (req, res) => {
         console.error(err);
       });
   } else {
+    // Shopify expects a 200 response from our webhook otherwise it will retry 19
+    // times over 48 hours, if still no response the webhook subscription is deleted.
+    // https://shopify.dev/tutorials/manage-webhooks
     res.status(200).send(`Error: failed to capture payment record`);
   }
 };
