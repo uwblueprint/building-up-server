@@ -30,13 +30,17 @@ const shopifyWebhook = (req, res) => {
     error = true;
     console.error("Error: undefined value in JSON payload");
   }
-  //includes any discounts, excludes tax
+  // includes any discounts, excludes tax
   const price = event.subtotal_price;
 
+  // quantity of items sold
   var numberOfItems = 0;
   for (i = 0; i < event.line_items.length; i++) {
     numberOfItems += event.line_items[i].quantity;
   }
+
+  // date of purchase from Shopify request data
+  var purchaseDate = event.created_at;
 
   if (!error) {
     models.Orders.create({
@@ -44,7 +48,8 @@ const shopifyWebhook = (req, res) => {
       userID: userID,
       teamID: teamID,
       price: price,
-      numberOfItems: numberOfItems
+      numberOfItems: numberOfItems,
+      purchaseDate: purchaseDate
     })
       .then(item => {
         res.json({
