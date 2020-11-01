@@ -14,6 +14,9 @@ module.exports = {
       organization: {
         type: Sequelize.STRING
       },
+      amountRaised: {
+        type: Sequelize.INTEGER
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
