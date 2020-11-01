@@ -20,9 +20,9 @@ const teamsResolvers = {
         async deleteTeam(root, { id }) {
             models.Team.destroy({
                 where: {
-                   id: id //this will be your id that you want to delete
+                   id: id 
                 }
-             }).then(function(rowDeleted){ // rowDeleted will return number of rows deleted
+             }).then(function(rowDeleted){ 
                if(rowDeleted === 1){
                   return true;
                 }
@@ -30,11 +30,50 @@ const teamsResolvers = {
                  return false;
              });
         },
-        async modifyTeam(root, { id, organization }) {
-            return models.Team.create({
-                name,
-                organization
-            })
+        async modifyName(root, { id, value }) {
+            models.Team.update(
+                {
+                    name:  value
+                },
+                { 
+                    where: 
+                    {
+                        id: id
+                    }
+                }
+            ).then(count => {
+                console.log('Rows updated ' + count);
+            });
+        },
+        async modifyOrganization(root, { id, value }) {
+            models.Team.update(
+                {
+                    organization:  value
+                },
+                { 
+                    where: 
+                    {
+                        id: id
+                    }
+                }
+            ).then(count => {
+                console.log('Rows updated ' + count);
+            });
+        },
+        async modifyAmountRaised(root, { id, value }) {
+            models.Team.update(
+                {
+                    amountRaised:  value
+                },
+                { 
+                    where: 
+                    {
+                        id: id
+                    }
+                }
+            ).then(count => {
+                console.log('Rows updated ' + count);
+            });
         }
     }
 }
