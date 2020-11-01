@@ -11,10 +11,11 @@ const teamsResolvers = {
     },
 
     Mutation: {
-        async createTeam(root, { name, organization }) {
+        async createTeam(root, { name, organization, amountRaised }) {
             return models.Team.create({
                 name,
-                organization
+                organization,
+                amountRaised
             })
         },
         async deleteTeam(root, { id }) {
