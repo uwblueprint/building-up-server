@@ -13,20 +13,18 @@ const _createTeamKey = (teamId, teamName) =>
 
 /**
  * Adds a new team
- * @param  {number} orgId
  * @param  {number} teamId
  * @param  {string} teamName
  * @param  {number} [score=0]
  * @return {number} Number of new teams added
  */
-const addTeam = async (orgId, teamId, teamName, score = 0) => {
+const addTeam = async (teamId, teamName, score = 0) => {
   try {
     const teamKey = _createTeamKey(teamId, teamName);
-    const [orgResult, globalResult] = await Promise.all([
-      redis.zadd([orgId, score, teamKey]),
+    const globalResult = await Promise(
       redis.zadd([GLOBAL_LEADERBOARD, score, teamKey]),
-    ]);
-    return orgResult;
+    );
+    return globalResult;
   } catch (err) {
     console.error(err);
   }
@@ -34,21 +32,19 @@ const addTeam = async (orgId, teamId, teamName, score = 0) => {
 
 /**
  * Increments a teams score
- * @param  {number} orgId
  * @param  {number} teamId
  * @param  {string} teamName
  * @param  {number} [score=1]
 
  * @return {number} New score after update
  */
-const incrementTeamScore = async (orgId, teamId, teamName, score=1) => {
+const incrementTeamScore = async (teamId, teamName, score=1) => {
   try {
     const teamKey = _createTeamKey(teamId, teamName);
-    const [orgResult, globalResult] = await Promise.all([
-      redis.zincrby([orgId, score, teamKey]),
+    const globalResult = await Promise(
       redis.zincrby([GLOBAL_LEADERBOARD, score, teamKey]),
-    ]);
-    return parseInt(orgResult);
+    );
+    return parseInt(globalResult);
   } catch (err) {
     console.error(err);
   }
@@ -71,20 +67,6 @@ const _parseLeaderboard = async (leaderboard) => {
     score = scores[i];
     return { team, score };
   });
-};
-
-/**
- * Gets an organizations leaderboard
- * @param {number} orgId
- * @return {Array} array of objects containing parsed teamKeys and scores
- */
-const getOrgLeaderboard = async (orgId) => {
-  try {
-    const res = await redis.zrevrange([orgId, 0, -1, 'withscores']);
-    return _parseLeaderboard(res);
-  } catch (err) {
-    console.error(err);
-  }
 };
 
 /**
