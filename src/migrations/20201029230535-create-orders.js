@@ -34,6 +34,10 @@ module.exports = {
         },
         allowNull: false
       },
+      teamName: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       price: {
         type: Sequelize.DECIMAL(20, 2),
         allowNull: false
