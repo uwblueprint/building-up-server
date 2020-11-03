@@ -63,8 +63,8 @@ const shopifyWebhook = (req, res) => {
       .then(item => {
         // succesful model creation, now we can add to redis
         incrementTeamScore(
-          noteAttributesEnum.teamID,
-          noteAttributesEnum.teamName,
+          noteAttributesMap.get(noteAttributesEnum.teamID),
+          noteAttributesMap.get(noteAttributesEnum.teamName),
           numberOfItems
         );
         res.json({
