@@ -1,8 +1,5 @@
 const models = require("../models");
-const {
-  incrementTeamScore,
-  getGlobalLeaderboard
-} = require("../redis/leaderboard");
+const { incrementTeamScore } = require("../redis/leaderboard");
 
 const noteAttributesEnum = {
   userID: 0,
