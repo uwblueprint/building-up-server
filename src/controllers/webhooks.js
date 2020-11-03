@@ -26,7 +26,7 @@ const shopifyWebhook = (req, res) => {
   // create noteAttributesMap hashmap
   var noteAttributesMap = new Map();
 
-  // userID is index 0, teamID is 1, teamName is 2
+  // userID is index 0, teamID is index 1, teamName is index 2
   for (var i = 0; i < 3; i++) {
     if (typeof event.note_attributes[i] !== "undefined") {
       noteAttributesMap.set(i, event.note_attributes[i].value);
@@ -61,7 +61,7 @@ const shopifyWebhook = (req, res) => {
       purchaseDate: purchaseDate
     })
       .then(item => {
-        // succesful model creation, now we can add to redis
+        // succesful payment record creation, now we can add to redis
         incrementTeamScore(
           noteAttributesMap.get(noteAttributesEnum.teamID),
           noteAttributesMap.get(noteAttributesEnum.teamName),
