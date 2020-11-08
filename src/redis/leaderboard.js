@@ -51,6 +51,26 @@ const incrementTeamScore = async (teamId, teamName, score=1) => {
 };
 
 /**
+ * Decrements a teams score
+ * @param  {number} teamId
+ * @param  {string} teamName
+ * @param  {number} [score=-1]
+
+ * @return {number} New score after update
+ */
+const decrementTeamScore = async (teamId, teamName, score=-1) => {
+  try {
+    const teamKey = _createTeamKey(teamId, teamName);
+    const globalResult = await Promise(
+      redis.zincrby([GLOBAL_LEADERBOARD, score, teamKey]),
+    );
+    return parseInt(globalResult);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+/**
  * Parses a redis zrange list to a leaderbaord
  * @param {Array} leaderboard even indices store keys, odd indices stores scores
  * @return {Array} array of objects containing parsed teamKeys and scores
@@ -69,11 +89,6 @@ const _parseLeaderboard = async (leaderboard) => {
   });
 };
 
-/**
- * Gets global leaderboard
- * @param {number} orgId
- * @return {Array} array of objects containing parsed teamKeys and scores
- */
 const getGlobalLeaderboard = async () => {
   try {
     const res = await redis.zrevrange([
@@ -90,5 +105,6 @@ const getGlobalLeaderboard = async () => {
 
 exports.addTeam = addTeam;
 exports.incrementTeamScore = incrementTeamScore;
+exports.decrementTeamScore = decrementTeamScore;
 exports.getOrgLeaderboard = getOrgLeaderboard;
 exports.getGlobalLeaderboard = getGlobalLeaderboard;
