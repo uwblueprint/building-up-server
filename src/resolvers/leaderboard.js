@@ -1,10 +1,9 @@
-const { addTeam, getGlobalLeaderboard } = require('../redis/leaderboard');
+const { getGlobalLeaderboard } = require('../redis/leaderboard');
 
 const leaderboardResolvers = {
     Query: {
         async getGlobalLeaderboard(root, { first, offset }) {
-            const res = await getGlobalLeaderboard(first, first + offset);
-            console.log(res);
+            const res = await getGlobalLeaderboard();
             return {
                 sortedTeams: res.slice(first, first + offset)
             };
