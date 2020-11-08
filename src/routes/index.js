@@ -1,14 +1,23 @@
 const express = require("express");
-const { shopifyWebhook } = require("../controllers");
+const {
+  capturePaymentWebhook,
+  deletePaymentWebhook
+} = require("../controllers");
 
 const bodyParser = require("body-parser");
 
 const router = express.Router();
 
 router.post(
-  "/shopifyWebhook",
+  "/capturePaymentWebhook",
   bodyParser.raw({ type: "application/json" }),
-  shopifyWebhook
+  capturePaymentWebhook
+);
+
+router.post(
+  "/deletePaymentWebhook",
+  bodyParser.raw({ type: "application/json" }),
+  deletePaymentWebhook
 );
 
 module.exports = router;

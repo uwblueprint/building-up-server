@@ -15,7 +15,7 @@ const server = new ApolloServer({
 
 const app = express();
 
-app.use("/", routes);
+app.use("/shopify", routes);
 
 app.use(cookieParser());
 

@@ -7,7 +7,7 @@ const noteAttributesEnum = {
   teamName: 2
 };
 
-const shopifyWebhook = (req, res) => {
+const capturePaymentWebhook = (req, res) => {
   let event;
   var error = false;
 
@@ -70,8 +70,8 @@ const shopifyWebhook = (req, res) => {
         });
       })
       .catch(err => {
-        console.log("Error: failed to create shopify order-payment record");
-        console.error(err);
+        console.error(`Error: ${err.message}`);
+        res.status(200).send(`Error: failed to capture payment record`);
       });
   } else {
     // Shopify expects a 200 response from our webhook otherwise it will retry 19
@@ -81,4 +81,38 @@ const shopifyWebhook = (req, res) => {
   }
 };
 
-exports.shopifyWebhook = shopifyWebhook;
+const deletePaymentWebhook = (req, res) => {
+  var event;
+
+  try {
+    event = JSON.parse(req.body);
+  } catch (err) {
+    console.error(`Error: ${err.message}`);
+  }
+
+  models.Orders.destroy({
+    where: {
+      orderNumber: event.order_number
+    }
+  })
+    .then(rowsDestroyed => {
+      if (rowsDestroyed == 1) {
+        res.json({
+          Message: "Success: payment record was deleted",
+          order_number: event.order_number
+        });
+      } else if (rowsDestroyed == 0) {
+        res.json({
+          Message: "Error: no payment record found with order number",
+          order_number: event.order_number
+        });
+      }
+    })
+    .catch(err => {
+      console.error(`Error: ${err.message}`);
+      res.status(200).send(`Error: failed to delete payment record`);
+    });
+};
+
+exports.capturePaymentWebhook = capturePaymentWebhook;
+exports.deletePaymentWebhook = deletePaymentWebhook;
