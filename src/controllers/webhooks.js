@@ -1,4 +1,11 @@
 const models = require("../models");
+const { incrementTeamScore } = require("../redis/leaderboard");
+
+const noteAttributesEnum = {
+  userID: 0,
+  teamID: 1,
+  teamName: 2
+};
 
 const shopifyWebhook = (req, res) => {
   let event;
@@ -10,26 +17,24 @@ const shopifyWebhook = (req, res) => {
     error = true;
     console.error(`Error: ${err.message}`);
   }
-
+  // the Shopify order number from the JSON payload
   var orderNumber = event.order_number;
 
-  var userID, teamID;
+  // create noteAttributesMap hashmap
+  var noteAttributesMap = new Map();
 
-  // userID stored in first index
-  if (typeof event.note_attributes[0] !== "undefined") {
-    userID = event.note_attributes[0].value;
-  } else {
-    error = true;
-    console.error("Error: undefined value in JSON payload");
+  // userID is index 0, teamID is index 1, teamName is index 2
+  for (var i = 0; i < 3; i++) {
+    if (typeof event.note_attributes[i] !== "undefined") {
+      noteAttributesMap.set(i, event.note_attributes[i].value);
+    } else {
+      error = true;
+      console.error(
+        `Error: undefined index ${i} in JSON payload, note_attributes field`
+      );
+    }
   }
 
-  // teamID stored in second index
-  if (typeof event.note_attributes[1] !== "undefined") {
-    teamID = event.note_attributes[1].value;
-  } else {
-    error = true;
-    console.error("Error: undefined value in JSON payload");
-  }
   // includes any discounts, excludes tax
   const price = event.subtotal_price;
 
@@ -45,13 +50,20 @@ const shopifyWebhook = (req, res) => {
   if (!error) {
     models.Orders.create({
       orderNumber: orderNumber,
-      userID: userID,
-      teamID: teamID,
+      userID: noteAttributesMap.get(noteAttributesEnum.userID),
+      teamID: noteAttributesMap.get(noteAttributesEnum.teamID),
+      teamName: noteAttributesMap.get(noteAttributesEnum.teamName),
       price: price,
       numberOfItems: numberOfItems,
       purchaseDate: purchaseDate
     })
       .then(item => {
+        // succesful payment record creation, now we can add to redis
+        incrementTeamScore(
+          noteAttributesMap.get(noteAttributesEnum.teamID),
+          noteAttributesMap.get(noteAttributesEnum.teamName),
+          numberOfItems
+        );
         res.json({
           Message: "Success: payment record was captured",
           Item: item
