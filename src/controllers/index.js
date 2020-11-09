@@ -1,3 +1,4 @@
-const { shopifyWebhook } = require("./webhooks");
+const { captureOrderWebhook, cancelOrderWebhook } = require("./webhooks");
 
-exports.shopifyWebhook = shopifyWebhook;
+exports.captureOrderWebhook = captureOrderWebhook;
+exports.cancelOrderWebhook = cancelOrderWebhook;

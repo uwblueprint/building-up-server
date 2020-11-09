@@ -7,7 +7,7 @@ const noteAttributesEnum = {
   teamName: 2
 };
 
-const shopifyWebhook = (req, res) => {
+const captureOrderWebhook = (req, res) => {
   let event;
   var error = false;
 
@@ -70,15 +70,61 @@ const shopifyWebhook = (req, res) => {
         });
       })
       .catch(err => {
-        console.log("Error: failed to create shopify order-payment record");
-        console.error(err);
+        console.error(`Error: ${err.message}`);
+        res.status(200).send("Error: failed to capture payment record");
       });
   } else {
     // Shopify expects a 200 response from our webhook otherwise it will retry 19
     // times over 48 hours, if still no response the webhook subscription is deleted.
     // https://shopify.dev/tutorials/manage-webhooks
-    res.status(200).send(`Error: failed to capture payment record`);
+    res.status(200).send("Error: failed to capture payment record");
   }
 };
 
-exports.shopifyWebhook = shopifyWebhook;
+const cancelOrderWebhook = (req, res) => {
+  var event;
+
+  try {
+    event = JSON.parse(req.body);
+  } catch (err) {
+    console.error(`Error: ${err.message}`);
+  }
+
+  models.Orders.destroy({
+    where: {
+      orderNumber: event.order_number
+    }
+  })
+    .then(rowsDestroyed => {
+      if (rowsDestroyed == 1) {
+        res.json({
+          Message: "Success: payment record was deleted",
+          order_number: event.order_number
+        });
+      } else if (rowsDestroyed == 0) {
+        console.error(
+          `Error: could not find record with order_number: ${event.order_number}`
+        );
+        res.json({
+          Message: "Error: no payment record found with order number",
+          order_number: event.order_number
+        });
+      } else {
+        /*
+        Edge case where we had multiple rows with the same order_number.
+        This should not happen as we have a unique constraint in the DB
+        */
+        console.error(
+          "Error: deleted multiple records with the same order_number"
+        );
+        res.status(200).send("Error: failed to delete payment record");
+      }
+    })
+    .catch(err => {
+      console.error(`Error: ${err.message}`);
+      res.status(200).send("Error: failed to delete payment record");
+    });
+};
+
+exports.captureOrderWebhook = captureOrderWebhook;
+exports.cancelOrderWebhook = cancelOrderWebhook;

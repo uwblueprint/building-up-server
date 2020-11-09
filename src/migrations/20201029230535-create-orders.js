@@ -10,7 +10,8 @@ module.exports = {
       },
       orderNumber: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
+        unique: true
       },
       userID: {
         type: Sequelize.INTEGER,
