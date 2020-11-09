@@ -10,6 +10,9 @@ const authResolvers = {
         return null;
       }
       return models.User.findByPk(req.userId);
+    },
+    getAllUsers: (_,__,{req}) => {
+      return models.User.findAll();
     }
   },
   Mutation: {
@@ -22,13 +25,12 @@ const authResolvers = {
           lastName,
           email,
           password: hashedPassword,
-          role: "USER"
         });
       } catch (error) {
         console.log(error)
       }
     },
-    async login(root, { email, password }, { res }){
+    async login(root, { email, password }, { req, res }){
       try {
         const user = await models.User.findOne({ where: { email } });
 
@@ -53,11 +55,21 @@ const authResolvers = {
         
         res.cookie("refresh-token", refreshToken);
         res.cookie("access-token", accessToken);
-  
+        console.log(user);
         return user;
       } catch (error) {
         console.log(error)
       }
+    },
+    async logout(root, __, {req, res}){
+      try {
+        res.clearCookie("refresh-token");
+        res.clearCookie("access-token");
+        return true;
+      } catch (error) {
+        console.log(error)
+      }
+      return false;
     }
   }
 };

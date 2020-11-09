@@ -7,6 +7,7 @@ const port = 4000;
 var cookieParser = require("cookie-parser");
 const { verify } = require("jsonwebtoken");
 require("dotenv").config({ path: "./keys.env" });
+const cors = require('cors');
 
 const server = new ApolloServer({
   schema,
@@ -17,6 +18,7 @@ const app = express();
 
 app.use("/shopify", routes);
 
+app.use('*', cors({ origin: 'http://localhost:3000' }));
 app.use(cookieParser());
 
 app.use((req, _, next) => {
