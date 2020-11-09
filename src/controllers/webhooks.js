@@ -7,7 +7,7 @@ const noteAttributesEnum = {
   teamName: 2
 };
 
-const capturePaymentWebhook = (req, res) => {
+const captureOrderWebhook = (req, res) => {
   let event;
   var error = false;
 
@@ -81,7 +81,7 @@ const capturePaymentWebhook = (req, res) => {
   }
 };
 
-const deletePaymentWebhook = (req, res) => {
+const cancelOrderWebhook = (req, res) => {
   var event;
 
   try {
@@ -126,5 +126,5 @@ const deletePaymentWebhook = (req, res) => {
     });
 };
 
-exports.capturePaymentWebhook = capturePaymentWebhook;
-exports.deletePaymentWebhook = deletePaymentWebhook;
+exports.captureOrderWebhook = captureOrderWebhook;
+exports.cancelOrderWebhook = cancelOrderWebhook;

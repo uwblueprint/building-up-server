@@ -1,4 +1,4 @@
-const { capturePaymentWebhook, deletePaymentWebhook } = require("./webhooks");
+const { captureOrderWebhook, cancelOrderWebhook } = require("./webhooks");
 
-exports.capturePaymentWebhook = capturePaymentWebhook;
-exports.deletePaymentWebhook = deletePaymentWebhook;
+exports.captureOrderWebhook = captureOrderWebhook;
+exports.cancelOrderWebhook = cancelOrderWebhook;
