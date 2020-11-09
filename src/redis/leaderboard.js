@@ -65,10 +65,11 @@ const _parseLeaderboard = async leaderboard => {
     .filter((_, i) => i % 2 == 1)
     .map(score => parseInt(score));
 
-  return teams.map((team, i) => {
-    score = scores[i];
-    return { team, score };
-  });
+  return teams.map((team, i) => ({
+    teamId: team.teamId,
+    teamName: team.teamName,
+    score: scores[i]
+  }));
 };
 
 /**
