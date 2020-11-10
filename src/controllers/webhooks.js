@@ -151,15 +151,14 @@ const updateOrderWebhook = (req, res) => {
       if (existingOrder != null) {
         // we can cross reference the incoming changes with existing data in our DB.
         changelog = orderChanges(event, existingOrder);
-        console.log("changelog is: ");
-        console.log(changelog);
-        if (changelog != null) {
+        // if changelog object is not empty, we can update the DB record
+        if (Object.keys(changelog).length !== 0) {
           models.Orders.update(changelog, {
             where: {
               orderNumber: event.order_number
-            }
+            },
+            returning: true
           }).then(rows => {
-            console.log(rows);
             if (rows[0] == 1 && rows[1] != null) {
               res.json({
                 Message: "Success: payment record was updated",
@@ -170,12 +169,18 @@ const updateOrderWebhook = (req, res) => {
             }
           });
         }
-        if (changelog == null) {
-          console.log("changelog is null");
+        // check if changelog object is empty
+        else if (
+          Object.keys(changelog).length === 0 &&
+          changelog.constructor === Object
+        ) {
           res.json({
             Message: "Success: no DB changes need to be made to order record",
             order_number: event.order_number
           });
+        } else {
+          console.error("Error: changelog object is not initiated");
+          res.status(200).send("Error: internal error");
         }
       } else {
         res.json({
@@ -197,44 +202,39 @@ const updateOrderWebhook = (req, res) => {
 */
 function orderChanges(incomingOrder, existingOrder) {
   // this function will return an object of updated values relevant to our DB table
-  // check userID, teamID, teamName, price, numberOfItems, purchaseDate
-  changelog = {};
-
-  console.log("inside orderChanges");
-  // console.log(existingOrder);
-  console.log(existingOrder.purchaseDate);
-
-  console.log("incoming Orders data");
-  console.log(incomingOrder);
-  console.log(incomingOrder.note_attributes[noteAttributesEnum.userID].value);
+  changelog = new Object();
 
   if (
     incomingOrder.note_attributes[noteAttributesEnum.userID].value !=
     existingOrder.userID
   ) {
-    changelog.userID = incomingOrder.userID;
+    changelog.userID =
+      incomingOrder.note_attributes[noteAttributesEnum.userID].value;
   }
+
   if (
     incomingOrder.note_attributes[noteAttributesEnum.teamID].value !=
     existingOrder.teamID
   ) {
-    changelog.teamID = incomingOrder.teamID;
+    changelog.teamID =
+      incomingOrder.note_attributes[noteAttributesEnum.teamID].value;
   }
+
   if (
     incomingOrder.note_attributes[noteAttributesEnum.teamName].value !=
     existingOrder.teamName
   ) {
-    changelog.teamName = incomingOrder.teamName;
+    changelog.teamName =
+      incomingOrder.note_attributes[noteAttributesEnum.teamName].value;
   }
+
   if (incomingOrder.subtotal_price != existingOrder.price) {
     changelog.price = incomingOrder.subtotal_price;
   }
 
-  if (computeQuantity(incomingOrder) != existingOrder.numberOfItems) {
-    changelog.numberOfItems = incomingOrder.numberOfItems;
-  }
-  if (incomingOrder.created_at != existingOrder.purchaseDate) {
-    changelog.purchaseDate = incomingOrder.created_at;
+  newQuantity = computeQuantity(incomingOrder);
+  if (newQuantity != existingOrder.numberOfItems) {
+    changelog.numberOfItems = newQuantity;
   }
 
   return changelog;
