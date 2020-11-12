@@ -1,5 +1,8 @@
 const models = require("../models");
-const { incrementTeamScore } = require("../redis/leaderboard");
+const {
+  incrementTeamScore,
+  decrementTeamScore
+} = require("../redis/leaderboard");
 
 const noteAttributesEnum = {
   userID: 0,
@@ -7,7 +10,7 @@ const noteAttributesEnum = {
   teamName: 2
 };
 
-const captureOrderWebhook = (req, res) => {
+const captureOrderWebhook = async (req, res) => {
   let event;
   var error = false;
 
@@ -45,31 +48,33 @@ const captureOrderWebhook = (req, res) => {
   var purchaseDate = event.created_at;
 
   if (!error) {
-    models.Orders.create({
-      orderNumber: orderNumber,
-      userID: noteAttributesMap.get(noteAttributesEnum.userID),
-      teamID: noteAttributesMap.get(noteAttributesEnum.teamID),
-      teamName: noteAttributesMap.get(noteAttributesEnum.teamName),
-      price: price,
-      numberOfItems: numberOfItems,
-      purchaseDate: purchaseDate
-    })
-      .then(item => {
-        // succesful payment record creation, now we can add to redis.
-        incrementTeamScore(
-          noteAttributesMap.get(noteAttributesEnum.teamID),
-          noteAttributesMap.get(noteAttributesEnum.teamName),
-          numberOfItems
-        );
-        res.json({
-          Message: "Success: payment record was captured",
-          Item: item
-        });
-      })
-      .catch(err => {
-        console.error(`Error: ${err.message}`);
-        res.status(200).send("Error: failed to capture payment record");
+    try {
+      item = await models.Orders.create({
+        orderNumber: orderNumber,
+        userID: noteAttributesMap.get(noteAttributesEnum.userID),
+        teamID: noteAttributesMap.get(noteAttributesEnum.teamID),
+        teamName: noteAttributesMap.get(noteAttributesEnum.teamName),
+        price: price,
+        numberOfItems: numberOfItems,
+        purchaseDate: purchaseDate
       });
+
+      // succesful payment record creation, now we can add to redis.
+      incrementCacheScore(
+        parseInt(noteAttributesMap.get(noteAttributesEnum.teamID)),
+        noteAttributesMap.get(noteAttributesEnum.teamName),
+        numberOfItems
+      );
+
+      //return 200 ok response
+      res.json({
+        Message: "Success: payment record was captured",
+        Item: item
+      });
+    } catch (err) {
+      console.error(`Error: ${err.message}`);
+      res.status(200).send("Error: failed to capture payment record");
+    }
   } else {
     // Shopify expects a 200 response from our webhook otherwise it will retry 19
     // times over 48 hours, if still no response the webhook subscription is deleted.
@@ -78,7 +83,7 @@ const captureOrderWebhook = (req, res) => {
   }
 };
 
-const cancelOrderWebhook = (req, res) => {
+const cancelOrderWebhook = async (req, res) => {
   var event;
 
   try {
@@ -87,23 +92,25 @@ const cancelOrderWebhook = (req, res) => {
     console.error(`Error: ${err.message}`);
   }
 
-  models.Orders.destroy({
-    where: {
-      orderNumber: event.order_number
-    }
-  })
-    .then(rowsDestroyed => {
-      if (rowsDestroyed == 1) {
+  try {
+    row = await findById(event.order_number);
+    if (row != null) {
+      rowsDeleted = await models.Orders.destroy({
+        where: {
+          orderNumber: event.order_number
+        }
+      });
+
+      if (rowsDeleted == 1) {
+        // succesful payment record deleted, now we can update redis.
+        decrementCacheScore(
+          parseInt(row.teamID),
+          row.teamName,
+          row.numberOfItems
+        );
+
         res.json({
           Message: "Success: payment record was deleted",
-          order_number: event.order_number
-        });
-      } else if (rowsDestroyed == 0) {
-        console.error(
-          `Error: could not find record with order_number: ${event.order_number}`
-        );
-        res.json({
-          Message: "Error: no payment record found with order number",
           order_number: event.order_number
         });
       } else {
@@ -111,16 +118,19 @@ const cancelOrderWebhook = (req, res) => {
         Edge case where we had multiple rows with the same order_number.
         This should not happen as we have a unique constraint in the DB.
         */
-        console.error(
-          "Error: deleted multiple records with the same order_number"
+        throw new Error(
+          `deleted multiple records with the same order_number: ${event.order_number}`
         );
-        res.status(200).send("Error: failed to delete payment record");
       }
-    })
-    .catch(err => {
-      console.error(`Error: ${err.message}`);
-      res.status(200).send("Error: failed to delete payment record");
-    });
+    } else {
+      throw new Error(
+        `no payment record with order_number: ${event.order_number} to be deleted`
+      );
+    }
+  } catch (err) {
+    console.error(`Error: ${err.message}`);
+    res.status(200).send("Error: failed to delete payment record");
+  }
 };
 
 /*
@@ -128,10 +138,14 @@ updateOrderWebhook.
 Only update a DB order record if there are changes to important fields like the
 userID, teamID, teamName, price, numberOfItems, etc.
 
+Also, the webhook will have issues trying to update the redis cache if the teamID
+or teamName is changed. We will need a better method of syncing our DB with redis
+in the future.
+
 If an update occurs on something like shipping address, or phone number, then we
 do not need to update any records in the DB.
 */
-const updateOrderWebhook = (req, res) => {
+const updateOrderWebhook = async (req, res) => {
   var event;
 
   try {
@@ -142,57 +156,62 @@ const updateOrderWebhook = (req, res) => {
 
   // first find the record in the DB.
   // since order_numbers are unique in our DB, there should only be 1 order found.
-  models.Orders.findOne({
-    where: {
-      orderNumber: event.order_number
-    }
-  })
-    .then(existingOrder => {
-      if (existingOrder != null) {
-        // we can cross reference the incoming changes with existing data in our DB.
-        changelog = orderChanges(event, existingOrder);
-        // if changelog object is not empty, we can update the DB record
-        if (Object.keys(changelog).length !== 0) {
-          models.Orders.update(changelog, {
-            where: {
-              orderNumber: event.order_number
-            },
-            returning: true
-          }).then(rows => {
-            if (rows[0] == 1 && rows[1] != null) {
-              res.json({
-                Message: "Success: payment record was updated",
-                order_number: event.order_number,
-                number_rows: rows[0],
-                item: rows[1]
-              });
-            }
-          });
-        }
-        // check if changelog object is empty
-        else if (
-          Object.keys(changelog).length === 0 &&
-          changelog.constructor === Object
-        ) {
+  try {
+    existingOrder = await findById(event.order_number);
+
+    if (existingOrder != null) {
+      // we can cross reference the incoming changes with existing data in our DB.
+      changelog = orderChanges(event, existingOrder);
+
+      // if changelog object is not empty, we can update the DB record
+      if (Object.keys(changelog).length !== 0) {
+        rows = await models.Orders.update(changelog, {
+          where: {
+            orderNumber: event.order_number
+          },
+          returning: true
+        });
+
+        if (rows[0] == 1 && rows[1] != null) {
+          // update redis cache if quantity changed
+          if (changelog.hasOwnProperty("numberOfItems")) {
+            // update cache score in redis
+            incrementCacheScore(
+              parseInt(event.note_attributes[noteAttributesEnum.teamID].value),
+              event.note_attributes[noteAttributesEnum.teamName].value,
+              changelog.numberOfItems - existingOrder.numberOfItems
+            );
+          }
+
           res.json({
-            Message: "Success: no DB changes need to be made to order record",
-            order_number: event.order_number
+            Message: "Success: payment record was updated",
+            order_number: event.order_number,
+            number_rows: rows[0],
+            item: rows[1]
           });
-        } else {
-          console.error("Error: changelog object is not initiated");
-          res.status(200).send("Error: internal error");
         }
-      } else {
+      }
+      // check if changelog object is empty
+      else if (
+        Object.keys(changelog).length === 0 &&
+        changelog.constructor === Object
+      ) {
         res.json({
-          Message: "Error: no payment record was found to be updated",
+          Message: "Success: no DB changes need to be made to order record",
           order_number: event.order_number
         });
+      } else {
+        throw new Error("no changelog object initiated");
       }
-    })
-    .catch(err => {
-      console.error(`Error: ${err.message}`);
-      res.status(200).send("Error: failed to update payment record");
-    });
+    } else {
+      throw new Error(
+        `no payment record with orderNumber: ${event.order_number} to be updated `
+      );
+    }
+  } catch (err) {
+    console.error(`Error: ${err.message}`);
+    res.status(200).send("Error: failed to update payment record");
+  }
 };
 
 /*
@@ -250,6 +269,22 @@ function computeQuantity(event) {
     numberOfItems += event.line_items[i].quantity;
   }
   return numberOfItems;
+}
+
+function findById(orderNumber) {
+  return models.Orders.findOne({
+    where: {
+      orderNumber: orderNumber
+    }
+  });
+}
+
+function incrementCacheScore(teamID, teamName, quantity) {
+  incrementTeamScore(teamID, teamName, quantity);
+}
+
+function decrementCacheScore(teamID, teamName, quantity) {
+  decrementTeamScore(teamID, teamName, -Math.abs(quantity));
 }
 
 exports.captureOrderWebhook = captureOrderWebhook;
