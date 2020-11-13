@@ -107,5 +107,4 @@ const getGlobalLeaderboard = async () => {
 exports.addTeam = addTeam;
 exports.incrementTeamScore = incrementTeamScore;
 exports.decrementTeamScore = decrementTeamScore;
-exports.getOrgLeaderboard = getOrgLeaderboard;
 exports.getGlobalLeaderboard = getGlobalLeaderboard;
