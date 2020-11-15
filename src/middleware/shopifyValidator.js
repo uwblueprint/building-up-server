@@ -10,7 +10,7 @@ function verifyShopifyHeader(hmac, rawBody) {
     .createHmac("sha256", secretKey)
     .update(rawBody, "utf8", "hex")
     .digest("base64");
-  return hmac === secretKey;
+  return hmac === hash;
 }
 
 function shopifyValidator(req, res, buf, encoding) {
