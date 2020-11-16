@@ -16,7 +16,7 @@ function verifyShopifyHeader(hmac, rawBody) {
 function shopifyValidator(req, res, buf, encoding) {
   if (buf && buf.length) {
     const rawBody = buf.toString(encoding || "utf8");
-    const hmac = req.get("X-Shopify-Hmac-Sha256");
+    const hmac = req.get("X-Shopify-Hmac-SHA256");
     // set a custom request field for the shopifyValidators result
     req.is_shopify_header_verified = verifyShopifyHeader(hmac, rawBody);
   } else {
