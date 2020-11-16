@@ -9,12 +9,14 @@ const {
   teamsTypeDefs,
   paymentsTypeDefs,
   authTypeDefs,
+  leaderboardTypeDefs
 } = require("./schemas");
 const {
   helloWorldResolvers,
   teamsResolvers,
   paymentsResolvers,
   authResolvers,
+  leaderboardResolvers
 } = require("./resolvers");
 
 // Base query schema, other queries extend this
@@ -38,13 +40,15 @@ const schema = makeExecutableSchema({
         helloWorldTypeDefs,
         teamsTypeDefs,
         authTypeDefs,
-        paymentsTypeDefs
+        paymentsTypeDefs,
+        leaderboardTypeDefs
     ],
     resolvers: merge(
         helloWorldResolvers,
         teamsResolvers,
         authResolvers,
         paymentsResolvers,
+        leaderboardResolvers
     )
 })
 
