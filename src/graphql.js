@@ -7,6 +7,7 @@ const { merge } = require("lodash");
 const {
   helloWorldTypeDefs,
   teamsTypeDefs,
+  ordersTypeDefs,
   paymentsTypeDefs,
   authTypeDefs,
   leaderboardTypeDefs
@@ -39,6 +40,7 @@ const schema = makeExecutableSchema({
         Mutation,
         helloWorldTypeDefs,
         teamsTypeDefs,
+        ordersTypeDefs,
         authTypeDefs,
         paymentsTypeDefs,
         leaderboardTypeDefs
