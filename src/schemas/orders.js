@@ -12,6 +12,5 @@ const ordersTypeDefs = gql`
     }
 
 `
-
 exports.ordersTypeDefs = ordersTypeDefs;
 
