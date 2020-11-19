@@ -25,8 +25,8 @@ const teamsResolvers = {
                 ],
                 limit: amountPrev
             });
-
-        }
+        
+        },
     },
 
     Mutation: {
@@ -98,4 +98,4 @@ const teamsResolvers = {
     }
 }
 
-exports.teamsResolvers = teamsResolvers
+exports.teamsResolvers = teamsResolvers;

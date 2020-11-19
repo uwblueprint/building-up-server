@@ -10,7 +10,7 @@ const teamsTypeDefs = gql`
     extend type Query {
         getTeam(id: Int!): Team
         getAllTeams: [Team!]!
-        latestOrders(amountPrev: Int!, id: Int!): [Orders!]!
+        latestOrders(id: Int!, amountPrev: Int!): [Orders!]!
     }
 
     extend type Mutation {
