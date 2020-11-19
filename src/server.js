@@ -15,6 +15,7 @@ const server = new ApolloServer({
 
 const app = express();
 
+// mounting the shopify webhook routes
 app.use("/shopify", routes);
 
 app.use(cookieParser());

@@ -22,7 +22,7 @@ const addTeam = async (teamId, teamName, score = 0) => {
   try {
     const teamKey = _createTeamKey(teamId, teamName);
     const globalResult = await Promise(
-      redis.zadd([GLOBAL_LEADERBOARD, score, teamKey]),
+      redis.zadd([GLOBAL_LEADERBOARD, score, teamKey])
     );
     return globalResult;
   } catch (err) {
@@ -38,12 +38,14 @@ const addTeam = async (teamId, teamName, score = 0) => {
 
  * @return {number} New score after update
  */
-const incrementTeamScore = async (teamId, teamName, score=1) => {
+const incrementTeamScore = async (teamId, teamName, score = 1) => {
   try {
     const teamKey = _createTeamKey(teamId, teamName);
-    const globalResult = await Promise(
-      redis.zincrby([GLOBAL_LEADERBOARD, score, teamKey]),
-    );
+    const globalResult = await redis.zincrby([
+      GLOBAL_LEADERBOARD,
+      score,
+      teamKey
+    ]);
     return parseInt(globalResult);
   } catch (err) {
     console.error(err);
@@ -58,12 +60,14 @@ const incrementTeamScore = async (teamId, teamName, score=1) => {
 
  * @return {number} New score after update
  */
-const decrementTeamScore = async (teamId, teamName, score=-1) => {
+const decrementTeamScore = async (teamId, teamName, score = -1) => {
   try {
     const teamKey = _createTeamKey(teamId, teamName);
-    const globalResult = await Promise(
-      redis.zincrby([GLOBAL_LEADERBOARD, score, teamKey]),
-    );
+    const globalResult = await redis.zincrby([
+      GLOBAL_LEADERBOARD,
+      score,
+      teamKey
+    ]);
     return parseInt(globalResult);
   } catch (err) {
     console.error(err);
