@@ -50,10 +50,13 @@ const teamsResolvers = {
                  return false;
              });
         },
-        async modifyName(root, { id, value }) {
+        
+        async updateTeam(root, {id, name, organization, amountRaised}) {
             models.Team.update(
                 {
-                    name:  value
+                    name: name,
+                    organization: organization,
+                    amountRaised: amountRaised
                 },
                 { 
                     where: 
@@ -61,38 +64,8 @@ const teamsResolvers = {
                         id: id
                     }
                 }
-            ).then(count => {
-                console.log('Rows updated ' + count);
-            });
-        },
-        async modifyOrganization(root, { id, value }) {
-            models.Team.update(
-                {
-                    organization:  value
-                },
-                { 
-                    where: 
-                    {
-                        id: id
-                    }
-                }
-            ).then(count => {
-                console.log('Rows updated ' + count);
-            });
-        },
-        async modifyAmountRaised(root, { id, value }) {
-            models.Team.update(
-                {
-                    amountRaised:  value
-                },
-                { 
-                    where: 
-                    {
-                        id: id
-                    }
-                }
-            ).then(count => {
-                console.log('Rows updated ' + count);
+            ).then(() => {
+                return getTeam(id);
             });
         }
     }

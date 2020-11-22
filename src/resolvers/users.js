@@ -21,6 +21,25 @@ const usersResolvers = {
                 role,
                 teamId
             })
+        },
+        async updateUser(root, { id, firstName, lastName, email, password, role, teamId}) {
+            return models.User.update(
+                {
+                    id: id,
+                     firstName: firstName, 
+                     lastName: lastName, 
+                     email: email, 
+                     password: password, 
+                     role: role, 
+                     teamId: teamId
+                },
+                { 
+                    where: 
+                    {
+                        id: id
+                    }
+                }
+            )
         }
     }
 }
