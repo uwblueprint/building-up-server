@@ -52,7 +52,7 @@ const teamsResolvers = {
         },
         
         async updateTeam(root, {id, name, organization, amountRaised}) {
-            models.Team.update(
+           models.Team.update(
                 {
                     name: name,
                     organization: organization,
@@ -64,9 +64,7 @@ const teamsResolvers = {
                         id: id
                     }
                 }
-            ).then(() => {
-                return getTeam(id);
-            });
+            );
         }
     }
 }

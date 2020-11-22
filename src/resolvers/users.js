@@ -8,6 +8,9 @@ const usersResolvers = {
                     teamId: teamId
                 }
             })
+        },
+        async getUser(root, {id}) {
+            return models.User.findByPk(id)
         }
     },
     Mutation: {
@@ -23,7 +26,7 @@ const usersResolvers = {
             })
         },
         async updateUser(root, { id, firstName, lastName, email, password, role, teamId}) {
-            return models.User.update(
+             models.User.update(
                 {
                     id: id,
                      firstName: firstName, 
