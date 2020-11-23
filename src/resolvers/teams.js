@@ -13,11 +13,11 @@ const teamsResolvers = {
             return models.Orders.findAll({
                 attributes: 
                 [
-                    'orderId', 'price', 'purchaseDate'
+                    'orderNumber', 'price', 'purchaseDate'
                 ],
                 where: 
                 {
-                    teamId: id
+                    teamID: id
                 },
                 order: 
                 [
@@ -27,6 +27,22 @@ const teamsResolvers = {
             });
         
         },
+        async getItemsSold(root, { id }) {
+            return models.Orders.findAll({
+                attributes:
+                [
+                    'teamID, numberOfItems', [sequelize.fn('SUM', sequelize.col('numberOfItems')), 'itemsSold']
+                ],
+                where:
+                {
+                    teamID: id
+                },
+                group:
+                [
+                    'teamID'
+                ]
+            });
+        }
     },
 
     Mutation: {
