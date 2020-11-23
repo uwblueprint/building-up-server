@@ -6,6 +6,7 @@ const teamsTypeDefs = gql`
         name: String!
         organization: String!
         amountRaised: Int!
+        itemsSold: Int!
     }
     extend type Query {
         getTeam(id: Int!): Team
@@ -14,7 +15,7 @@ const teamsTypeDefs = gql`
     }
 
     extend type Mutation {
-        createTeam(name: String!, organization: String!, amountRaised: Int!): Team
+        createTeam(name: String!, organization: String!, amountRaised: Int!, itemsSold: Int!): Team
         deleteTeam(id: Int!) : Boolean
         updateTeam(id: Int!, name: String, organization: String, amountRaised: Int): Team
     }

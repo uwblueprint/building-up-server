@@ -30,11 +30,12 @@ const teamsResolvers = {
     },
 
     Mutation: {
-        async createTeam(root, { name, organization, amountRaised }) {
+        async createTeam(root, { name, organization, amountRaised,itemsSold }) {
             return models.Team.create({
                 name,
                 organization,
-                amountRaised
+                amountRaised,
+                itemsSold
             })
         },
         async deleteTeam(root, { id }) {
@@ -51,12 +52,13 @@ const teamsResolvers = {
              });
         },
         
-        async updateTeam(root, {id, name, organization, amountRaised}) {
+        async updateTeam(root, {id, name, organization, amountRaised, itemsSold}) {
            models.Team.update(
                 {
                     name: name,
                     organization: organization,
-                    amountRaised: amountRaised
+                    amountRaised: amountRaised,
+                    itemsSold: itemsSold
                 },
                 { 
                     where: 
