@@ -4,10 +4,14 @@ const teamsResolvers = {
 
     Query: {
         async getTeam(root, { id }) {
-            return models.Team.findByPk(id)
+            const team =  await models.Team.findByPk(id);
+            if (team == null) {
+                throw "Team not found";
+            }
+            return team;
         },
         async getAllTeams(root, args) {
-            return models.Team.findAll()
+            return models.Team.findAll();
         },
         async latestOrders(root, { id, amountPrev }) {
             return models.Orders.findAll({
@@ -59,30 +63,22 @@ const teamsResolvers = {
                 where: {
                    id: id 
                 }
-             }).then(function(rowDeleted){ 
-               if(rowDeleted === 1){
-                  return true;
-                }
-             }, function(err){
-                 return false;
-             });
+             })
+             return true;
         },
         
         async updateTeam(root, {id, name, organization, amountRaised, itemsSold}) {
-           models.Team.update(
-                {
-                    name: name,
-                    organization: organization,
-                    amountRaised: amountRaised,
-                    itemsSold: itemsSold
-                },
-                { 
-                    where: 
-                    {
-                        id: id
-                    }
-                }
-            );
+            const team = await models.Team.findOne({where: {id:id}});
+            if (team == null) {
+                throw "Team Not Found";
+            }
+            team.name = name;
+            team.organization = organization;
+            team.amountRaised = amountRaised;
+            team.itemsSold = itemsSold;
+
+            await team.save();
+            return team;
         }
     }
 }
