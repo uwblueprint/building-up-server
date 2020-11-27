@@ -10,7 +10,11 @@ const usersResolvers = {
             })
         },
         async getUser(root, {id}) {
-            return models.User.findByPk(id)
+            const user = await models.User.findByPk(id);
+            if (user == null) {
+                throw "User Not Found";
+            }
+            return user;
         }
     },
     Mutation: {
@@ -26,23 +30,21 @@ const usersResolvers = {
             })
         },
         async updateUser(root, { id, firstName, lastName, email, password, role, teamId}) {
-             models.User.update(
-                {
-                    id: id,
-                     firstName: firstName, 
-                     lastName: lastName, 
-                     email: email, 
-                     password: password, 
-                     role: role, 
-                     teamId: teamId
-                },
-                { 
-                    where: 
-                    {
-                        id: id
-                    }
-                }
-            )
+
+            const user = await models.User.findOne({where: {id:id}});
+            if (user == null) {
+                throw "User Not Found";
+            }
+            
+            user.firstName = firstName;
+            user.lastName = lastName;
+            user.email = email;
+            user.password = password;
+            user.role = role;
+            user.teamId = teamId;
+
+            await user.save();
+            return user;
         }
     }
 }
