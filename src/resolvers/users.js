@@ -15,7 +15,10 @@ const usersResolvers = {
                 throw "User Not Found";
             }
             return user;
-        }
+        },
+        async getAllUsers(root, args) {
+            return models.User.findAll();
+        },
     },
     Mutation: {
         async addUser(root, { firstName, lastName, email, password, role, teamId }) {
@@ -35,7 +38,7 @@ const usersResolvers = {
             if (user == null) {
                 throw "User Not Found";
             }
-            
+
             user.firstName = firstName;
             user.lastName = lastName;
             user.email = email;

@@ -16,6 +16,7 @@ const usersTypeDefs = gql`
     extend type Query {
         Users(teamId: Int!) : [User]
         getUser(id: Int!) : User
+        getAllUsers: [User!]!
     }
 
     extend type Mutation {
