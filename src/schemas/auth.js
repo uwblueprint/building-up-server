@@ -8,6 +8,7 @@ const authTypeDefs = gql`
     extend type Mutation {
         register(firstName: String!, lastName: String!, email: String!, password: String!): User
         login(email: String!, password: String!): User
+        logout: Boolean
     }
 `
 

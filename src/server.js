@@ -7,6 +7,7 @@ const port = 4000;
 var cookieParser = require("cookie-parser");
 const { verify } = require("jsonwebtoken");
 require("dotenv").config({ path: "./keys.env" });
+const cors = require('cors');
 
 const server = new ApolloServer({
   schema,
@@ -15,10 +16,11 @@ const server = new ApolloServer({
 
 const app = express();
 
-// mounting the shopify webhook routes
-app.use("/shopify", routes);
+const corsOptions = { origin: 'http://localhost:3000', credentials: true}
 
 app.use(cookieParser());
+
+app.use("/shopify", routes);
 
 app.use((req, _, next) => {
   const accessToken = req.cookies["access-token"];
@@ -29,7 +31,7 @@ app.use((req, _, next) => {
   next();
 });
 
-server.applyMiddleware({ app });
+server.applyMiddleware({ app, cors: corsOptions });
 models.sequelize.authenticate();
 
 models.sequelize.sync();
