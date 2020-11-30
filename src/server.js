@@ -16,10 +16,11 @@ const server = new ApolloServer({
 
 const app = express();
 
-app.use("/shopify", routes);
+const option = { origin: 'http://localhost:3000', credentials: true}
 
-app.use('*', cors({ origin: 'http://localhost:3000' }));
 app.use(cookieParser());
+
+app.use("/shopify", routes);
 
 app.use((req, _, next) => {
   const accessToken = req.cookies["access-token"];
@@ -30,7 +31,7 @@ app.use((req, _, next) => {
   next();
 });
 
-server.applyMiddleware({ app });
+server.applyMiddleware({ app, cors: option });
 models.sequelize.authenticate();
 
 models.sequelize.sync();
