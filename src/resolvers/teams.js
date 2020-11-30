@@ -35,7 +35,23 @@ const teamsResolvers = {
             return models.Orders.findAll({
                 attributes:
                 [
-                    'teamID, numberOfItems', [sequelize.fn('SUM', sequelize.col('numberOfItems')), 'itemsSold']
+                    'teamID', 'numberOfItems', [sequelize.fn('SUM', sequelize.col('numberOfItems')), 'itemsSold']
+                ],
+                where:
+                {
+                    teamID: id
+                },
+                group:
+                [
+                    'teamID'
+                ]
+            });
+        },
+        async getAmountRaised(root, { id }) {
+            return models.Orders.findAll({
+                attributes:
+                [
+                    'teamID', [sequelize.fn('SUM', sequelize.col('price')), 'amountRaised']
                 ],
                 where:
                 {

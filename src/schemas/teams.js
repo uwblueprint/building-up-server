@@ -13,6 +13,7 @@ const teamsTypeDefs = gql`
         getAllTeams: [Team!]!
         latestOrders(id: Int!, amountPrev: Int!): [Orders!]!
         getItemsSold(id: Int!): [Orders!]!
+        getAmountRaised(id: Int!): [Orders!]!
     }
 
     extend type Mutation {

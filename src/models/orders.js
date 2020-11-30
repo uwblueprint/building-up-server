@@ -20,7 +20,6 @@ module.exports = (sequelize, DataTypes) => {
       price: DataTypes.DECIMAL(20, 2),
       numberOfItems: DataTypes.INTEGER,
       purchaseDate: DataTypes.DATE,
-      numberOfItems: DataTypes.INTEGER,
     },
     {
       sequelize,
