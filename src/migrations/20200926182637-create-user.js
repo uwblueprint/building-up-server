@@ -22,12 +22,12 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
-      /*role: {
+      role: {
         type: Sequelize.STRING
       },
       teamId: {
         type: Sequelize.INTEGER
-      },*/
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

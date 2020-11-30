@@ -16,7 +16,7 @@ const server = new ApolloServer({
 
 const app = express();
 
-const option = { origin: 'http://localhost:3000', credentials: true}
+const corsOptions = { origin: 'http://localhost:3000', credentials: true}
 
 app.use(cookieParser());
 
@@ -31,7 +31,7 @@ app.use((req, _, next) => {
   next();
 });
 
-server.applyMiddleware({ app, cors: option });
+server.applyMiddleware({ app, cors: corsOptions });
 models.sequelize.authenticate();
 
 models.sequelize.sync();

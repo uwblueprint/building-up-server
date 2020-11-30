@@ -52,8 +52,6 @@ const authResolvers = {
         
         res.cookie("refresh-token", refreshToken);
         res.cookie("access-token", accessToken);
-        console.log(res.getHeaders());
-        console.log(user);
         return user;
       } catch (error) {
         console.log(error)
