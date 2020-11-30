@@ -5,7 +5,7 @@ const teamsTypeDefs = gql`
         id: Int!
         name: String!
         organization: String!
-        amountRaised: Int!
+        amountRaised: Float!
         itemsSold: Int!
     }
     extend type Query {
