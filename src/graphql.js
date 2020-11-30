@@ -7,16 +7,19 @@ const { merge } = require("lodash");
 const {
   helloWorldTypeDefs,
   teamsTypeDefs,
+  ordersTypeDefs,
   paymentsTypeDefs,
   authTypeDefs,
-  leaderboardTypeDefs
+  leaderboardTypeDefs,
+  usersTypeDefs
 } = require("./schemas");
 const {
   helloWorldResolvers,
   teamsResolvers,
   paymentsResolvers,
   authResolvers,
-  leaderboardResolvers
+  leaderboardResolvers,
+  usersResolvers
 } = require("./resolvers");
 
 // Base query schema, other queries extend this
@@ -39,16 +42,19 @@ const schema = makeExecutableSchema({
         Mutation,
         helloWorldTypeDefs,
         teamsTypeDefs,
+        ordersTypeDefs,
         authTypeDefs,
         paymentsTypeDefs,
-        leaderboardTypeDefs
+        leaderboardTypeDefs,
+        usersTypeDefs
     ],
     resolvers: merge(
         helloWorldResolvers,
         teamsResolvers,
         authResolvers,
         paymentsResolvers,
-        leaderboardResolvers
+        leaderboardResolvers,
+        usersResolvers
     )
 })
 

@@ -21,6 +21,7 @@
     "@types/node": "^14.10.1",
     "eslint": "^7.10.0",
     "eslint-plugin-react": "^7.21.3",
+    "sequelize-cli": "^6.2.0",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.2"
   },
@@ -37,7 +38,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "graphql": "^15.3.0",
-    "graphql-tools": "^6.2.3",
+    "graphql-tools": "^5.0.0",
     "helmet": "^4.1.1",
     "http": "0.0.1-security",
     "jsonwebtoken": "^8.5.1",
@@ -47,7 +48,6 @@
     "pg-hstore": "^2.3.3",
     "redis": "^3.0.2",
     "sequelize": "^6.3.5",
-    "sequelize-cli": "^6.2.0",
     "stripe": "^8.97.0"
   }
 }
