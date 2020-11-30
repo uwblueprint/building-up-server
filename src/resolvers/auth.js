@@ -11,9 +11,6 @@ const authResolvers = {
       }
       return models.User.findByPk(req.userId);
     },
-    getAllUsers: (_,__,{req}) => {
-      return models.User.findAll();
-    }
   },
   Mutation: {
     async register(root, {firstName, lastName, email, password }) {
