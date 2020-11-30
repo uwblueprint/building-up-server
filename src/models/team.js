@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   Team.init({
     name: DataTypes.STRING,
     organization: DataTypes.STRING,
-    amountRaised: DataTypes.INTEGER,
+    amountRaised: DataTypes.DECIMAL(20, 2),
     itemsSold: DataTypes.INTEGER,
   }, {
     sequelize,
