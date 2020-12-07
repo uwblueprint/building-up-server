@@ -8,7 +8,6 @@ var cookieParser = require("cookie-parser");
 const { verify } = require("jsonwebtoken");
 require("dotenv").config({ path: "./keys.env" });
 const cors = require('cors');
-const userSeed = require('./seeders/20201130014002-Teams.js');
 
 const server = new ApolloServer({
   schema,
