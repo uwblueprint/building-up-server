@@ -247,8 +247,9 @@ function orderChanges(incomingOrder, existingOrder) {
       incomingOrder.note_attributes[noteAttributesEnum.teamName].value;
   }
 
-  if (incomingOrder.subtotal_price != existingOrder.price) {
-    changelog.price = incomingOrder.subtotal_price;
+  newPrice = computeUpdatedPrice(incomingOrder);
+  if (newPrice != existingOrder.price) {
+    changelog.price = newPrice;
   }
 
   newQuantity = computeQuantity(incomingOrder);
@@ -261,14 +262,43 @@ function orderChanges(incomingOrder, existingOrder) {
 
 /*
   computeQuantity takes in the order event and computes the
-  total number of items sold
+  total number of items sold, including if there are refunds or updates
 */
 function computeQuantity(event) {
-  numberOfItems = 0;
-  for (i = 0; i < event.line_items.length; i++) {
-    numberOfItems += event.line_items[i].quantity;
+  totalQuantity = 0;
+  refundQuantity = 0;
+
+  event.line_items.forEach(line_item => {
+    totalQuantity += line_item.quantity;
+  });
+  if (event.refunds !== undefined || event.refunds.length != 0) {
+    // go through each refund object
+    event.refunds.forEach(refund_item => {
+      refund_item.refund_line_items.forEach(refund_line_item => {
+        refundQuantity += refund_line_item.quantity;
+      });
+    });
   }
-  return numberOfItems;
+
+  return totalQuantity - refundQuantity;
+}
+
+/*
+  computeUpdatedPrice takes in the order event and computes the
+  total updated price due to adding items or refunding
+*/
+function computeUpdatedPrice(event) {
+  refund = 0;
+  if (event.refunds !== undefined || event.refunds.length != 0) {
+    // go through each refund object
+    event.refunds.forEach(refund_item => {
+      refund_item.refund_line_items.forEach(refund_line_item => {
+        refund += refund_line_item.subtotal;
+      });
+    });
+  }
+
+  return parseFloat(event.subtotal_price) - refund;
 }
 
 function findById(orderNumber) {
