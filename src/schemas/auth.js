@@ -1,15 +1,15 @@
-const { gql } = require('apollo-server-express')
+const { gql } = require('apollo-server-express');
 
 const authTypeDefs = gql`
-    extend type Query {
-        getActiveUser: User
-    }
+  extend type Query {
+    getActiveUser: User
+  }
 
-    extend type Mutation {
-        register(firstName: String!, lastName: String!, email: String!, password: String!): User
-        login(email: String!, password: String!): User
-        logout: Boolean
-    }
-`
+  extend type Mutation {
+    register(firstName: String!, lastName: String!, email: String!, password: String!): User
+    login(email: String!, password: String!): User
+    logout: Boolean
+  }
+`;
 
-exports.authTypeDefs = authTypeDefs
+exports.authTypeDefs = authTypeDefs;

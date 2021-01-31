@@ -13,7 +13,7 @@ const usersResolvers = {
     async getUser(root, { id }) {
       const user = await models.User.findByPk(id);
       if (user == null) {
-        throw 'User Not Found';
+        throw new Error('User Not Found');
       }
       return user;
     },
@@ -36,7 +36,7 @@ const usersResolvers = {
     async updateUser(root, { id, firstName, lastName, email, password, role, teamId }) {
       const user = await models.User.findOne({ where: { id } });
       if (user == null) {
-        throw 'User Not Found';
+        throw new Error('User Not Found');
       }
 
       user.firstName = firstName;
