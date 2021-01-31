@@ -1,3 +1,3 @@
-const { shopifyValidator } = require("./shopifyValidator");
+const { shopifyValidator } = require('./shopifyValidator');
 
 exports.shopifyValidator = shopifyValidator;
