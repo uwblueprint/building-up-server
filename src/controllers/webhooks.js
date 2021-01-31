@@ -55,11 +55,11 @@ const captureOrderWebhook = async (req, res) => {
       });
 
       // succesful payment record creation, now we can add to redis.
-      incrementCacheScore(
-        parseInt(noteAttributesMap.get(noteAttributesEnum.teamID)),
-        noteAttributesMap.get(noteAttributesEnum.teamName),
-        numberOfItems,
-      );
+      // incrementCacheScore(
+      //   parseInt(noteAttributesMap.get(noteAttributesEnum.teamID)),
+      //   noteAttributesMap.get(noteAttributesEnum.teamName),
+      //   numberOfItems,
+      // );
 
       // return 200 ok response
       res.json({
@@ -98,7 +98,7 @@ const cancelOrderWebhook = async (req, res) => {
 
       if (rowsDeleted == 1) {
         // succesful payment record deleted, now we can update redis.
-        decrementCacheScore(parseInt(row.teamID), row.teamName, row.numberOfItems);
+        // decrementCacheScore(parseInt(row.teamID), row.teamName, row.numberOfItems);
 
         res.json({
           Message: 'Success: payment record was deleted',
@@ -163,11 +163,11 @@ const updateOrderWebhook = async (req, res) => {
           // update redis cache if quantity changed
           if (changelog.hasOwnProperty('numberOfItems')) {
             // update cache score in redis
-            incrementCacheScore(
-              parseInt(event.note_attributes[noteAttributesEnum.teamID].value),
-              event.note_attributes[noteAttributesEnum.teamName].value,
-              changelog.numberOfItems - existingOrder.numberOfItems,
-            );
+            // incrementCacheScore(
+            //   parseInt(event.note_attributes[noteAttributesEnum.teamID].value),
+            //   event.note_attributes[noteAttributesEnum.teamName].value,
+            //   changelog.numberOfItems - existingOrder.numberOfItems,
+            // );
           }
 
           res.json({
@@ -280,11 +280,11 @@ function findById(orderNumber) {
 }
 
 function incrementCacheScore(teamID, teamName, quantity) {
-  incrementTeamScore(teamID, teamName, quantity);
+  // incrementTeamScore(teamID, teamName, quantity);
 }
 
 function decrementCacheScore(teamID, teamName, quantity) {
-  decrementTeamScore(teamID, teamName, -Math.abs(quantity));
+  // decrementTeamScore(teamID, teamName, -Math.abs(quantity));
 }
 
 exports.captureOrderWebhook = captureOrderWebhook;
