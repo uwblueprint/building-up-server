@@ -1,12 +1,8 @@
-const express = require("express");
-const {
-  captureOrderWebhook,
-  cancelOrderWebhook,
-  updateOrderWebhook
-} = require("../controllers");
+const express = require('express');
+const bodyParser = require('body-parser');
+const { captureOrderWebhook, cancelOrderWebhook, updateOrderWebhook } = require('../controllers');
 
-const bodyParser = require("body-parser");
-const { shopifyValidator } = require("../middleware/shopifyValidator");
+const { shopifyValidator } = require('../middleware/shopifyValidator');
 
 const router = express.Router();
 
@@ -16,9 +12,9 @@ shopifyValidator in the header.
 */
 router.use(
   bodyParser.raw({
-    type: "application/json",
-    verify: shopifyValidator
-  })
+    type: 'application/json',
+    verify: shopifyValidator,
+  }),
 );
 
 /*
@@ -33,10 +29,10 @@ router.use((req, res, next) => {
   }
 });
 
-router.post("/captureOrderWebhook", captureOrderWebhook);
+router.post('/captureOrderWebhook', captureOrderWebhook);
 
-router.post("/cancelOrderWebhook", cancelOrderWebhook);
+router.post('/cancelOrderWebhook', cancelOrderWebhook);
 
-router.post("/updateOrderWebhook", updateOrderWebhook);
+router.post('/updateOrderWebhook', updateOrderWebhook);
 
 module.exports = router;

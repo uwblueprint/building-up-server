@@ -1,9 +1,9 @@
 const helloWorldResolvers = {
-    Query: {
-      hello: () => {
-          return 'Hello world!'
-      }
+  Query: {
+    hello: () => {
+      return 'Hello world!';
     },
-  };
+  },
+};
 
-exports.helloWorldResolvers = helloWorldResolvers
+exports.helloWorldResolvers = helloWorldResolvers;

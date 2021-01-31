@@ -1,67 +1,66 @@
-"use strict";
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Orders", {
+    await queryInterface.createTable('Orders', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       orderNumber: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        unique: true
+        unique: true,
       },
       userID: {
         type: Sequelize.INTEGER,
         references: {
           model: {
-            tableName: "Users",
-            schema: "public"
+            tableName: 'Users',
+            schema: 'public',
           },
-          key: "id"
+          key: 'id',
         },
-        allowNull: false
+        allowNull: false,
       },
       teamID: {
         type: Sequelize.INTEGER,
         references: {
           model: {
-            tableName: "Teams",
-            schema: "public"
+            tableName: 'Teams',
+            schema: 'public',
           },
-          key: "id"
+          key: 'id',
         },
-        allowNull: false
+        allowNull: false,
       },
       teamName: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
       price: {
         type: Sequelize.DECIMAL(20, 2),
-        allowNull: false
+        allowNull: false,
       },
       numberOfItems: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       purchaseDate: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
       },
       createdAt: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
       },
       updatedAt: {
         type: Sequelize.DATE,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("Orders");
-  }
+    await queryInterface.dropTable('Orders');
+  },
 };
