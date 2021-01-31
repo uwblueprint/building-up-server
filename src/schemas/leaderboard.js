@@ -1,4 +1,4 @@
-const { gql } = require("apollo-server-express");
+const { gql } = require('apollo-server-express');
 
 const leaderboardTypeDefs = gql`
   type LeaderboardTeam {
@@ -13,7 +13,7 @@ const leaderboardTypeDefs = gql`
 
   extend type Query {
     getGlobalLeaderboard(first: Int!, offset: Int!): Leaderboard
-}
+  }
 `;
 
 exports.leaderboardTypeDefs = leaderboardTypeDefs;
