@@ -15,6 +15,7 @@ const captureOrderWebhook = async (req, res) => {
     event = JSON.parse(req.body);
   } catch (err) {
     error = true;
+    // eslint-disable-next-line no-console
     console.error(`Error: ${err.message}`);
   }
   // the Shopify order number from the JSON payload.
@@ -29,6 +30,7 @@ const captureOrderWebhook = async (req, res) => {
       noteAttributesMap.set(i, event.note_attributes[i].value);
     } else {
       error = true;
+      // eslint-disable-next-line no-console
       console.error(`Error: undefined index ${i} in JSON payload, note_attributes field`);
     }
   }
@@ -55,11 +57,11 @@ const captureOrderWebhook = async (req, res) => {
       });
 
       // succesful payment record creation, now we can add to redis.
-      // incrementCacheScore(
-      //   parseInt(noteAttributesMap.get(noteAttributesEnum.teamID)),
-      //   noteAttributesMap.get(noteAttributesEnum.teamName),
-      //   numberOfItems,
-      // );
+      incrementCacheScore(
+        parseInt(noteAttributesMap.get(noteAttributesEnum.teamID)),
+        noteAttributesMap.get(noteAttributesEnum.teamName),
+        numberOfItems,
+      );
 
       // return 200 ok response
       res.json({
@@ -67,6 +69,7 @@ const captureOrderWebhook = async (req, res) => {
         Item: item,
       });
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error(`Error: ${err.message}`);
       res.status(200).send('Error: failed to capture payment record');
     }
@@ -84,6 +87,7 @@ const cancelOrderWebhook = async (req, res) => {
   try {
     event = JSON.parse(req.body);
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error(`Error: ${err.message}`);
   }
 
@@ -98,7 +102,7 @@ const cancelOrderWebhook = async (req, res) => {
 
       if (rowsDeleted == 1) {
         // succesful payment record deleted, now we can update redis.
-        // decrementCacheScore(parseInt(row.teamID), row.teamName, row.numberOfItems);
+        decrementCacheScore(parseInt(row.teamID), row.teamName, row.numberOfItems);
 
         res.json({
           Message: 'Success: payment record was deleted',
@@ -115,6 +119,7 @@ const cancelOrderWebhook = async (req, res) => {
       throw new Error(`no payment record with order_number: ${event.order_number} to be deleted`);
     }
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error(`Error: ${err.message}`);
     res.status(200).send('Error: failed to delete payment record');
   }
@@ -138,6 +143,7 @@ const updateOrderWebhook = async (req, res) => {
   try {
     event = JSON.parse(req.body);
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error(`Error: ${err.message}`);
   }
 
@@ -163,11 +169,11 @@ const updateOrderWebhook = async (req, res) => {
           // update redis cache if quantity changed
           if (changelog.hasOwnProperty('numberOfItems')) {
             // update cache score in redis
-            // incrementCacheScore(
-            //   parseInt(event.note_attributes[noteAttributesEnum.teamID].value),
-            //   event.note_attributes[noteAttributesEnum.teamName].value,
-            //   changelog.numberOfItems - existingOrder.numberOfItems,
-            // );
+            incrementCacheScore(
+              parseInt(event.note_attributes[noteAttributesEnum.teamID].value),
+              event.note_attributes[noteAttributesEnum.teamName].value,
+              changelog.numberOfItems - existingOrder.numberOfItems,
+            );
           }
 
           res.json({
@@ -191,6 +197,7 @@ const updateOrderWebhook = async (req, res) => {
       throw new Error(`no payment record with orderNumber: ${event.order_number} to be updated `);
     }
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error(`Error: ${err.message}`);
     res.status(200).send('Error: failed to update payment record');
   }
@@ -280,11 +287,11 @@ function findById(orderNumber) {
 }
 
 function incrementCacheScore(teamID, teamName, quantity) {
-  // incrementTeamScore(teamID, teamName, quantity);
+  incrementTeamScore(teamID, teamName, quantity);
 }
 
 function decrementCacheScore(teamID, teamName, quantity) {
-  // decrementTeamScore(teamID, teamName, -Math.abs(quantity));
+  decrementTeamScore(teamID, teamName, -Math.abs(quantity));
 }
 
 exports.captureOrderWebhook = captureOrderWebhook;

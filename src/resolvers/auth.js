@@ -24,6 +24,7 @@ const authResolvers = {
           password: hashedPassword,
         });
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.log(error);
       }
     },
@@ -50,6 +51,7 @@ const authResolvers = {
         res.cookie('access-token', accessToken);
         return user;
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.log(error);
       }
     },
@@ -59,6 +61,7 @@ const authResolvers = {
         res.clearCookie('access-token');
         return true;
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.log(error);
       }
       return false;

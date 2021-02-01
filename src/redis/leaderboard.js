@@ -23,6 +23,7 @@ const addTeam = async (teamId, teamName, score = 0) => {
     const globalResult = await Promise(redis.zadd([GLOBAL_LEADERBOARD, score, teamKey]));
     return globalResult;
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error(err);
   }
 };
@@ -41,6 +42,7 @@ const incrementTeamScore = async (teamId, teamName, score = 1) => {
     const globalResult = await redis.zincrby([GLOBAL_LEADERBOARD, score, teamKey]);
     return parseInt(globalResult);
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error(err);
   }
 };
@@ -59,6 +61,7 @@ const decrementTeamScore = async (teamId, teamName, score = -1) => {
     const globalResult = await redis.zincrby([GLOBAL_LEADERBOARD, score, teamKey]);
     return parseInt(globalResult);
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error(err);
   }
 };
@@ -84,6 +87,7 @@ const getGlobalLeaderboard = async () => {
     const res = await redis.zrevrange([GLOBAL_LEADERBOARD, 0, -1, 'withscores']);
     return _parseLeaderboard(res);
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error(err);
   }
 };
