@@ -1,7 +1,5 @@
 const { gql } = require('apollo-server-express');
 
-// type User has already been defined in auth.js schemas
-
 const usersTypeDefs = gql`
   type User {
     id: Int!
