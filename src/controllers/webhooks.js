@@ -28,12 +28,12 @@ function decrementCacheScore(teamID, teamName, quantity) {
   total number of items sold, including if there are refunds or updates
 */
 function computeQuantity(event) {
-  const { line_items, refunds } = event;
+  const { line_items: lineItems, refunds } = event;
 
   let totalQuantity = 0;
   let refundQuantity = 0;
 
-  line_items.forEach(item => {
+  lineItems.forEach(item => {
     totalQuantity += item.quantity;
   });
 
@@ -55,9 +55,9 @@ function computeUpdatedPrice(event) {
   let refund = 0;
   if (event.refunds !== undefined || event.refunds.length !== 0) {
     // go through each refund object
-    event.refunds.forEach(refund_item => {
-      refund_item.refund_line_items.forEach(refund_line_item => {
-        refund += refund_line_item.subtotal;
+    event.refunds.forEach(refundItem => {
+      refundItem.refund_line_items.forEach(refundLineItem => {
+        refund += refundLineItem.subtotal;
       });
     });
   }
