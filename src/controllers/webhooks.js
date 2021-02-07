@@ -1,5 +1,5 @@
 const models = require('../models');
-const { incrementTeamScore, decrementTeamScore } = require('../redis/leaderboard');
+//const { incrementTeamScore, decrementTeamScore } = require('../redis/leaderboard');
 
 const noteAttributesEnum = {
   userID: 0,
@@ -16,11 +16,20 @@ function findById(orderNumber) {
 }
 
 function incrementCacheScore(teamID, teamName, quantity) {
-  incrementTeamScore(teamID, teamName, quantity);
+  //incrementTeamScore(teamID, teamName, quantity);
+
+  models.Team.increment(['itemsSold'], { by: quantity, where: { teamId: teamID } });
+
+  //get Team using teamId
+  //   we have all the values
+  //   wwe can add quantity + itemsSold
+  //   update that team with (quantity + itemsSold)
 }
 
 function decrementCacheScore(teamID, teamName, quantity) {
-  decrementTeamScore(teamID, teamName, -Math.abs(quantity));
+  //decrementTeamScore(teamID, teamName, -Math.abs(quantity));
+
+  models.Team.decrement(['itemsSold'], { by: Math.abs(quantity), where: { teamId: teamID } });
 }
 
 /*

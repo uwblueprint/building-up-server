@@ -6,7 +6,7 @@ const {
   ordersTypeDefs,
   paymentsTypeDefs,
   authTypeDefs,
-  leaderboardTypeDefs,
+  //leaderboardTypeDefs,
   usersTypeDefs,
 } = require('./schemas');
 const {
@@ -14,7 +14,7 @@ const {
   teamsResolvers,
   paymentsResolvers,
   authResolvers,
-  leaderboardResolvers,
+  //leaderboardResolvers,
   usersResolvers,
 } = require('./resolvers');
 
@@ -41,7 +41,7 @@ const schema = makeExecutableSchema({
     ordersTypeDefs,
     authTypeDefs,
     paymentsTypeDefs,
-    leaderboardTypeDefs,
+    //leaderboardTypeDefs,
     usersTypeDefs,
   ],
   resolvers: merge(
@@ -49,7 +49,7 @@ const schema = makeExecutableSchema({
     teamsResolvers,
     authResolvers,
     paymentsResolvers,
-    leaderboardResolvers,
+    //leaderboardResolvers,
     usersResolvers,
   ),
 });

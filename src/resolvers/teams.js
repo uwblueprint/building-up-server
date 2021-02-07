@@ -24,12 +24,27 @@ const teamsResolvers = {
       });
     },
     async getItemsSold(root, { id }) {
-      return models.Orders.findAll({
-        attributes: ['teamID, numberOfItems', [sequelize.fn('SUM', sequelize.col('numberOfItems')), 'itemsSold']],
+      // return models.Orders.findAll({
+      //   attributes: ['teamID, numberOfItems', [sequelize.fn('SUM', sequelize.col('numberOfItems')), 'itemsSold']],
+      //   where: {
+      //     teamID: id,
+      //   },
+      //   group: ['teamID'],
+      // });
+
+      return models.Team.findOne({
+        attributes: ['itemsSold'],
         where: {
-          teamID: id,
+          teamId: id,
         },
-        group: ['teamID'],
+      });
+    },
+
+    async getGlobalLeaderboard(root, args) {
+      return models.Team.findAll({
+        attributes: ['name', 'amountRaised', 'itemsSold'],
+        order: [['itemsSold', 'DESC']],
+        limit: 1000,
       });
     },
   },
