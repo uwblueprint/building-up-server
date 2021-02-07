@@ -41,7 +41,6 @@ const schema = makeExecutableSchema({
     ordersTypeDefs,
     authTypeDefs,
     paymentsTypeDefs,
-    //leaderboardTypeDefs,
     usersTypeDefs,
   ],
   resolvers: merge(
@@ -49,7 +48,6 @@ const schema = makeExecutableSchema({
     teamsResolvers,
     authResolvers,
     paymentsResolvers,
-    //leaderboardResolvers,
     usersResolvers,
   ),
 });
