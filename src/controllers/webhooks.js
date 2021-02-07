@@ -7,6 +7,98 @@ const noteAttributesEnum = {
   teamName: 2,
 };
 
+function findById(orderNumber) {
+  return models.Orders.findOne({
+    where: {
+      orderNumber,
+    },
+  });
+}
+
+function incrementCacheScore(teamID, teamName, quantity) {
+  incrementTeamScore(teamID, teamName, quantity);
+}
+
+function decrementCacheScore(teamID, teamName, quantity) {
+  decrementTeamScore(teamID, teamName, -Math.abs(quantity));
+}
+
+/*
+  computeQuantity takes in the order event and computes the
+  total number of items sold, including if there are refunds or updates
+*/
+function computeQuantity(event) {
+  const { lineItems, refunds } = event;
+
+  let totalQuantity = 0;
+  let refundQuantity = 0;
+
+  lineItems.forEach(item => {
+    totalQuantity += item.quantity;
+  });
+
+  if (refunds !== undefined || refunds.length !== 0) {
+    // go through each refund object
+    refunds.forEach(item => {
+      refundQuantity += item.quantity;
+    });
+  }
+
+  return totalQuantity - refundQuantity;
+}
+
+/*
+  computeUpdatedPrice takes in the order event and computes the
+  total updated price due to adding items or refunding
+*/
+function computeUpdatedPrice(event) {
+  let refund = 0;
+  if (event.refunds !== undefined || event.refunds.length !== 0) {
+    // go through each refund object
+    event.refunds.forEach(refundItem => {
+      refundItem.refund_line_items.forEach(refundLineItem => {
+        refund += refundLineItem.subtotal;
+      });
+    });
+  }
+
+  return parseFloat(event.subtotal_price) - refund;
+}
+
+/*
+  orderChanges.
+  Takes in the incoming and existing Order objects and returns
+  which fields we need to update in our DB.
+*/
+function orderChanges(incomingOrder, existingOrder) {
+  // this function will return an object of updated values relevant to our DB table
+  const changelog = {};
+
+  if (incomingOrder.note_attributes[noteAttributesEnum.userID].value !== existingOrder.userID) {
+    changelog.userID = incomingOrder.note_attributes[noteAttributesEnum.userID].value;
+  }
+
+  if (incomingOrder.note_attributes[noteAttributesEnum.teamID].value !== existingOrder.teamID) {
+    changelog.teamID = incomingOrder.note_attributes[noteAttributesEnum.teamID].value;
+  }
+
+  if (incomingOrder.note_attributes[noteAttributesEnum.teamName].value !== existingOrder.teamName) {
+    changelog.teamName = incomingOrder.note_attributes[noteAttributesEnum.teamName].value;
+  }
+
+  const newPrice = computeUpdatedPrice(incomingOrder);
+  if (newPrice !== existingOrder.price) {
+    changelog.price = newPrice;
+  }
+
+  const newQuantity = computeQuantity(incomingOrder);
+  if (newQuantity !== existingOrder.numberOfItems) {
+    changelog.numberOfItems = newQuantity;
+  }
+
+  return changelog;
+}
+
 const captureOrderWebhook = async (req, res) => {
   let event;
   let error = false;
@@ -25,7 +117,7 @@ const captureOrderWebhook = async (req, res) => {
   const noteAttributesMap = new Map();
 
   // userID is index 0, teamID is index 1, teamName is index 2.
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 3; i += 1) {
     if (typeof event.note_attributes[i] !== 'undefined') {
       noteAttributesMap.set(i, event.note_attributes[i].value);
     } else {
@@ -46,7 +138,7 @@ const captureOrderWebhook = async (req, res) => {
 
   if (!error) {
     try {
-      item = await models.Orders.create({
+      const item = await models.Orders.create({
         orderNumber,
         userID: noteAttributesMap.get(noteAttributesEnum.userID),
         teamID: noteAttributesMap.get(noteAttributesEnum.teamID),
@@ -58,7 +150,7 @@ const captureOrderWebhook = async (req, res) => {
 
       // succesful payment record creation, now we can add to redis.
       incrementCacheScore(
-        parseInt(noteAttributesMap.get(noteAttributesEnum.teamID)),
+        parseInt(noteAttributesMap.get(noteAttributesEnum.teamID), 10),
         noteAttributesMap.get(noteAttributesEnum.teamName),
         numberOfItems,
       );
@@ -92,17 +184,17 @@ const cancelOrderWebhook = async (req, res) => {
   }
 
   try {
-    row = await findById(event.order_number);
-    if (row != null) {
-      rowsDeleted = await models.Orders.destroy({
+    const row = await findById(event.order_number);
+    if (row !== null) {
+      const rowsDeleted = await models.Orders.destroy({
         where: {
           orderNumber: event.order_number,
         },
       });
 
-      if (rowsDeleted == 1) {
+      if (rowsDeleted === 1) {
         // succesful payment record deleted, now we can update redis.
-        decrementCacheScore(parseInt(row.teamID), row.teamName, row.numberOfItems);
+        decrementCacheScore(parseInt(row.teamID, 10), row.teamName, row.numberOfItems);
 
         res.json({
           Message: 'Success: payment record was deleted',
@@ -150,27 +242,27 @@ const updateOrderWebhook = async (req, res) => {
   // first find the record in the DB.
   // since order_numbers are unique in our DB, there should only be 1 order found.
   try {
-    existingOrder = await findById(event.order_number);
+    const existingOrder = await findById(event.order_number);
 
     if (existingOrder != null) {
       // we can cross reference the incoming changes with existing data in our DB.
-      changelog = orderChanges(event, existingOrder);
+      const changelog = orderChanges(event, existingOrder);
 
       // if changelog object is not empty, we can update the DB record
       if (Object.keys(changelog).length !== 0) {
-        rows = await models.Orders.update(changelog, {
+        const rows = await models.Orders.update(changelog, {
           where: {
             orderNumber: event.order_number,
           },
           returning: true,
         });
 
-        if (rows[0] == 1 && rows[1] != null) {
+        if (rows[0] === 1 && rows[1] !== null) {
           // update redis cache if quantity changed
-          if (changelog.hasOwnProperty('numberOfItems')) {
+          if (Object.hasOwnProperty.call(changelog, 'numberOfItems')) {
             // update cache score in redis
             incrementCacheScore(
-              parseInt(event.note_attributes[noteAttributesEnum.teamID].value),
+              parseInt(event.note_attributes[noteAttributesEnum.teamID].value, 10),
               event.note_attributes[noteAttributesEnum.teamName].value,
               changelog.numberOfItems - existingOrder.numberOfItems,
             );
@@ -202,97 +294,6 @@ const updateOrderWebhook = async (req, res) => {
     res.status(200).send('Error: failed to update payment record');
   }
 };
-
-/*
-  orderChanges.
-  Takes in the incoming and existing Order objects and returns
-  which fields we need to update in our DB.
-*/
-function orderChanges(incomingOrder, existingOrder) {
-  // this function will return an object of updated values relevant to our DB table
-  changelog = new Object();
-
-  if (incomingOrder.note_attributes[noteAttributesEnum.userID].value != existingOrder.userID) {
-    changelog.userID = incomingOrder.note_attributes[noteAttributesEnum.userID].value;
-  }
-
-  if (incomingOrder.note_attributes[noteAttributesEnum.teamID].value != existingOrder.teamID) {
-    changelog.teamID = incomingOrder.note_attributes[noteAttributesEnum.teamID].value;
-  }
-
-  if (incomingOrder.note_attributes[noteAttributesEnum.teamName].value != existingOrder.teamName) {
-    changelog.teamName = incomingOrder.note_attributes[noteAttributesEnum.teamName].value;
-  }
-
-  newPrice = computeUpdatedPrice(incomingOrder);
-  if (newPrice != existingOrder.price) {
-    changelog.price = newPrice;
-  }
-
-  newQuantity = computeQuantity(incomingOrder);
-  if (newQuantity != existingOrder.numberOfItems) {
-    changelog.numberOfItems = newQuantity;
-  }
-
-  return changelog;
-}
-
-/*
-  computeQuantity takes in the order event and computes the
-  total number of items sold, including if there are refunds or updates
-*/
-function computeQuantity(event) {
-  totalQuantity = 0;
-  refundQuantity = 0;
-
-  event.line_items.forEach(line_item => {
-    totalQuantity += line_item.quantity;
-  });
-  if (event.refunds !== undefined || event.refunds.length != 0) {
-    // go through each refund object
-    event.refunds.forEach(refund_item => {
-      refund_item.refund_line_items.forEach(refund_line_item => {
-        refundQuantity += refund_line_item.quantity;
-      });
-    });
-  }
-
-  return totalQuantity - refundQuantity;
-}
-
-/*
-  computeUpdatedPrice takes in the order event and computes the
-  total updated price due to adding items or refunding
-*/
-function computeUpdatedPrice(event) {
-  refund = 0;
-  if (event.refunds !== undefined || event.refunds.length != 0) {
-    // go through each refund object
-    event.refunds.forEach(refund_item => {
-      refund_item.refund_line_items.forEach(refund_line_item => {
-        refund += refund_line_item.subtotal;
-      });
-    });
-  }
-
-  return parseFloat(event.subtotal_price) - refund;
-}
-
-function findById(orderNumber) {
-  return models.Orders.findOne({
-    where: {
-      orderNumber,
-    },
-  });
-}
-
-function incrementCacheScore(teamID, teamName, quantity) {
-  incrementTeamScore(teamID, teamName, quantity);
-}
-
-function decrementCacheScore(teamID, teamName, quantity) {
-  decrementTeamScore(teamID, teamName, -Math.abs(quantity));
-}
 
 exports.captureOrderWebhook = captureOrderWebhook;
 exports.cancelOrderWebhook = cancelOrderWebhook;

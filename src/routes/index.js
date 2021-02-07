@@ -22,7 +22,7 @@ middleware for verifying the result of the shopifyValidator set in the
 request header.
 */
 router.use((req, res, next) => {
-  if (req.is_shopify_header_verified == true) {
+  if (req.is_shopify_header_verified === true) {
     next();
   } else {
     res.sendStatus(403);

@@ -1,13 +1,16 @@
 const { ApolloServer } = require('apollo-server-express');
-const { schema } = require('./graphql');
 const express = require('express');
+const cookieParser = require('cookie-parser');
+const { verify } = require('jsonwebtoken');
+const cors = require('cors');
+require('dotenv').config({ path: './keys.env' });
+
+const { schema } = require('./graphql');
 const models = require('./models');
 const routes = require('./routes');
+
 const port = 4000;
-var cookieParser = require('cookie-parser');
-const { verify } = require('jsonwebtoken');
-require('dotenv').config({ path: './keys.env' });
-const cors = require('cors');
+const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
 
 const server = new ApolloServer({
   schema,
@@ -25,15 +28,18 @@ app.use('/shopify', routes);
 app.use((req, _, next) => {
   const accessToken = req.cookies['access-token'];
   try {
-    const data = verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+    const data = verify(accessToken, accessTokenSecret);
     req.userId = data.userId;
-  } catch {}
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
+  }
   next();
 });
 
 server.applyMiddleware({ app, cors: corsOptions });
-models.sequelize.authenticate();
 
+models.sequelize.authenticate();
 models.sequelize.sync();
 
 app.listen({ port }, () => {

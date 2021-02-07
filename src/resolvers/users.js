@@ -1,4 +1,3 @@
-const { sequelize } = require('../models');
 const models = require('../models');
 
 const usersResolvers = {
@@ -24,7 +23,6 @@ const usersResolvers = {
   Mutation: {
     async addUser(root, { firstName, lastName, email, password, role, teamId }) {
       return models.User.create({
-        id,
         firstName,
         lastName,
         email,

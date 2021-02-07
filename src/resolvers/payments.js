@@ -2,7 +2,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const paymentsResolvers = {
   Mutation: {
-    async postPayment(root, { unit_amount, quantity }) {
+    async postPayment(root, { unitAmount, quantity }) {
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         shipping_address_collection: {
@@ -16,7 +16,7 @@ const paymentsResolvers = {
                 name: 'Toque',
               },
               // stripe operates in cents
-              unit_amount: unit_amount * 100,
+              unit_amount: unitAmount * 100,
             },
             quantity,
           },

@@ -54,7 +54,7 @@ const teamsResolvers = {
 
     async updateTeam(root, { id, name, organization, amountRaised, itemsSold }) {
       const team = await models.Team.findOne({ where: { id } });
-      if (team == null) {
+      if (team === null) {
         throw new Error('Team Not Found');
       }
       team.name = name;
