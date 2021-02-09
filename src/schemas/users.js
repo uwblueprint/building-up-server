@@ -7,8 +7,8 @@ const usersTypeDefs = gql`
     lastName: String!
     email: String!
     password: String!
-    role: String!
-    teamId: Int!
+    role: String
+    teamId: Int
   }
   extend type Query {
     Users(teamId: Int!): [User]
