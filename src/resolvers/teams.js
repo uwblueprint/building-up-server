@@ -17,17 +17,17 @@ const teamsResolvers = {
       return models.Orders.findAll({
         attributes: ['orderNumber', 'price', 'purchaseDate'],
         where: {
-          teamID: id,
+          id: id,
         },
         order: [['purchaseDate', 'DESC']],
         limit: amountPrev,
       });
     },
-    async getItemsSold(root, { id }) {
+    async getSalesInfoForTeam(root, { id }) {
       return models.Team.findOne({
-        attributes: ['itemsSold'],
+        attributes: ['itemsSold', 'amountRaised'],
         where: {
-          teamId: id,
+          id: id,
         },
       });
     },
@@ -36,7 +36,6 @@ const teamsResolvers = {
       return models.Team.findAll({
         attributes: ['name', 'amountRaised', 'itemsSold'],
         order: [['itemsSold', 'DESC']],
-        limit: 1000,
       });
     },
   },

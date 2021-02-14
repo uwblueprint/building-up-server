@@ -14,12 +14,12 @@ function findById(orderNumber) {
   });
 }
 
-function incrementCacheScore(teamID, teamName, quantity) {
-  models.Team.increment(['itemsSold'], { by: quantity, where: { teamId: teamID } });
+function incrementTeamScore(teamID, quantity) {
+  models.Team.increment(['itemsSold'], { by: quantity, where: { id: teamID } });
 }
 
-function decrementCacheScore(teamID, teamName, quantity) {
-  models.Team.decrement(['itemsSold'], { by: Math.abs(quantity), where: { teamId: teamID } });
+function decrementTeamScore(teamID, quantity) {
+  models.Team.decrement(['itemsSold'], { by: Math.abs(quantity), where: { id: teamID } });
 }
 
 /*
@@ -148,9 +148,8 @@ const captureOrderWebhook = async (req, res) => {
       });
 
       // succesful payment record creation, now we can add to redis.
-      incrementCacheScore(
+      incrementTeamScore(
         parseInt(noteAttributesMap.get(noteAttributesEnum.teamID), 10),
-        noteAttributesMap.get(noteAttributesEnum.teamName),
         numberOfItems,
       );
 
@@ -193,7 +192,7 @@ const cancelOrderWebhook = async (req, res) => {
 
       if (rowsDeleted === 1) {
         // succesful payment record deleted, now we can update redis.
-        decrementCacheScore(parseInt(row.teamID, 10), row.teamName, row.numberOfItems);
+        decrementTeamScore(parseInt(row.teamID, 10), row.numberOfItems);
 
         res.json({
           Message: 'Success: payment record was deleted',
@@ -260,9 +259,8 @@ const updateOrderWebhook = async (req, res) => {
           // update redis cache if quantity changed
           if (Object.hasOwnProperty.call(changelog, 'numberOfItems')) {
             // update cache score in redis
-            incrementCacheScore(
+            incrementTeamScore(
               parseInt(event.note_attributes[noteAttributesEnum.teamID].value, 10),
-              event.note_attributes[noteAttributesEnum.teamName].value,
               changelog.numberOfItems - existingOrder.numberOfItems,
             );
           }
