@@ -17,7 +17,7 @@ const teamsResolvers = {
       return models.Orders.findAll({
         attributes: ['orderNumber', 'price', 'purchaseDate'],
         where: {
-          teamID: id,
+          id: id,
         },
         order: [['purchaseDate', 'DESC']],
         limit: amountPrev,
@@ -25,11 +25,11 @@ const teamsResolvers = {
     },
     async getItemsSold(root, { id }) {
       return models.Orders.findAll({
-        attributes: ['teamID, numberOfItems', [sequelize.fn('SUM', sequelize.col('numberOfItems')), 'itemsSold']],
+        attributes: ['id, numberOfItems', [sequelize.fn('SUM', sequelize.col('numberOfItems')), 'itemsSold']],
         where: {
-          teamID: id,
+          id: id,
         },
-        group: ['teamID'],
+        group: ['id'],
       });
     },
   },

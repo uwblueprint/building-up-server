@@ -12,7 +12,7 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      userID: {
+      userId: {
         type: Sequelize.INTEGER,
         references: {
           model: {
@@ -23,7 +23,7 @@ module.exports = {
         },
         allowNull: false,
       },
-      teamID: {
+      teamId: {
         type: Sequelize.INTEGER,
         references: {
           model: {

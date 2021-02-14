@@ -2,8 +2,8 @@ const models = require('../models');
 const { incrementTeamScore, decrementTeamScore } = require('../redis/leaderboard');
 
 const noteAttributesEnum = {
-  userID: 0,
-  teamID: 1,
+  userId: 0,
+  teamId: 1,
   teamName: 2,
 };
 
@@ -15,12 +15,12 @@ function findById(orderNumber) {
   });
 }
 
-function incrementCacheScore(teamID, teamName, quantity) {
-  incrementTeamScore(teamID, teamName, quantity);
+function incrementCacheScore(teamId, teamName, quantity) {
+  incrementTeamScore(teamId, teamName, quantity);
 }
 
-function decrementCacheScore(teamID, teamName, quantity) {
-  decrementTeamScore(teamID, teamName, -Math.abs(quantity));
+function decrementCacheScore(teamId, teamName, quantity) {
+  decrementTeamScore(teamId, teamName, -Math.abs(quantity));
 }
 
 /*
@@ -74,12 +74,12 @@ function orderChanges(incomingOrder, existingOrder) {
   // this function will return an object of updated values relevant to our DB table
   const changelog = {};
 
-  if (incomingOrder.note_attributes[noteAttributesEnum.userID].value !== existingOrder.userID) {
-    changelog.userID = incomingOrder.note_attributes[noteAttributesEnum.userID].value;
+  if (incomingOrder.note_attributes[noteAttributesEnum.userId].value !== existingOrder.userId) {
+    changelog.userId = incomingOrder.note_attributes[noteAttributesEnum.userId].value;
   }
 
-  if (incomingOrder.note_attributes[noteAttributesEnum.teamID].value !== existingOrder.teamID) {
-    changelog.teamID = incomingOrder.note_attributes[noteAttributesEnum.teamID].value;
+  if (incomingOrder.note_attributes[noteAttributesEnum.teamId].value !== existingOrder.teamId) {
+    changelog.teamId = incomingOrder.note_attributes[noteAttributesEnum.teamId].value;
   }
 
   if (incomingOrder.note_attributes[noteAttributesEnum.teamName].value !== existingOrder.teamName) {
@@ -116,7 +116,7 @@ const captureOrderWebhook = async (req, res) => {
   // create noteAttributesMap hashmap.
   const noteAttributesMap = new Map();
 
-  // userID is index 0, teamID is index 1, teamName is index 2.
+  // userId is index 0, teamId is index 1, teamName is index 2.
   for (let i = 0; i < 3; i += 1) {
     if (typeof event.note_attributes[i] !== 'undefined') {
       noteAttributesMap.set(i, event.note_attributes[i].value);
@@ -140,8 +140,8 @@ const captureOrderWebhook = async (req, res) => {
     try {
       const item = await models.Orders.create({
         orderNumber,
-        userID: noteAttributesMap.get(noteAttributesEnum.userID),
-        teamID: noteAttributesMap.get(noteAttributesEnum.teamID),
+        userId: noteAttributesMap.get(noteAttributesEnum.userId),
+        teamId: noteAttributesMap.get(noteAttributesEnum.teamId),
         teamName: noteAttributesMap.get(noteAttributesEnum.teamName),
         price,
         numberOfItems,
@@ -150,7 +150,7 @@ const captureOrderWebhook = async (req, res) => {
 
       // succesful payment record creation, now we can add to redis.
       incrementCacheScore(
-        parseInt(noteAttributesMap.get(noteAttributesEnum.teamID), 10),
+        parseInt(noteAttributesMap.get(noteAttributesEnum.teamId), 10),
         noteAttributesMap.get(noteAttributesEnum.teamName),
         numberOfItems,
       );
@@ -194,7 +194,7 @@ const cancelOrderWebhook = async (req, res) => {
 
       if (rowsDeleted === 1) {
         // succesful payment record deleted, now we can update redis.
-        decrementCacheScore(parseInt(row.teamID, 10), row.teamName, row.numberOfItems);
+        decrementCacheScore(parseInt(row.teamId, 10), row.teamName, row.numberOfItems);
 
         res.json({
           Message: 'Success: payment record was deleted',
@@ -220,9 +220,9 @@ const cancelOrderWebhook = async (req, res) => {
 /*
 updateOrderWebhook.
 Only update a DB order record if there are changes to important fields like the
-userID, teamID, teamName, price, numberOfItems, etc.
+userId, teamId, teamName, price, numberOfItems, etc.
 
-Also, the webhook will have issues trying to update the redis cache if the teamID
+Also, the webhook will have issues trying to update the redis cache if the teamId
 or teamName is changed. We will need a better method of syncing our DB with redis
 in the future.
 
@@ -262,7 +262,7 @@ const updateOrderWebhook = async (req, res) => {
           if (Object.hasOwnProperty.call(changelog, 'numberOfItems')) {
             // update cache score in redis
             incrementCacheScore(
-              parseInt(event.note_attributes[noteAttributesEnum.teamID].value, 10),
+              parseInt(event.note_attributes[noteAttributesEnum.teamId].value, 10),
               event.note_attributes[noteAttributesEnum.teamName].value,
               changelog.numberOfItems - existingOrder.numberOfItems,
             );
