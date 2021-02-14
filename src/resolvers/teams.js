@@ -17,7 +17,7 @@ const teamsResolvers = {
       return models.Orders.findAll({
         attributes: ['orderNumber', 'price', 'purchaseDate'],
         where: {
-          id: id,
+          id,
         },
         order: [['purchaseDate', 'DESC']],
         limit: amountPrev,
@@ -27,7 +27,7 @@ const teamsResolvers = {
       return models.Team.findOne({
         attributes: ['itemsSold', 'amountRaised'],
         where: {
-          id: id,
+          id,
         },
       });
     },

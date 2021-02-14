@@ -148,10 +148,7 @@ const captureOrderWebhook = async (req, res) => {
       });
 
       // succesful payment record creation, now we can add to redis.
-      incrementTeamScore(
-        parseInt(noteAttributesMap.get(noteAttributesEnum.teamID), 10),
-        numberOfItems,
-      );
+      incrementTeamScore(parseInt(noteAttributesMap.get(noteAttributesEnum.teamID), 10), numberOfItems);
 
       // return 200 ok response
       res.json({

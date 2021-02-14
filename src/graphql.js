@@ -6,7 +6,6 @@ const {
   ordersTypeDefs,
   paymentsTypeDefs,
   authTypeDefs,
-  //leaderboardTypeDefs,
   usersTypeDefs,
 } = require('./schemas');
 const {
@@ -14,7 +13,6 @@ const {
   teamsResolvers,
   paymentsResolvers,
   authResolvers,
-  //leaderboardResolvers,
   usersResolvers,
 } = require('./resolvers');
 
@@ -43,13 +41,7 @@ const schema = makeExecutableSchema({
     paymentsTypeDefs,
     usersTypeDefs,
   ],
-  resolvers: merge(
-    helloWorldResolvers,
-    teamsResolvers,
-    authResolvers,
-    paymentsResolvers,
-    usersResolvers,
-  ),
+  resolvers: merge(helloWorldResolvers, teamsResolvers, authResolvers, paymentsResolvers, usersResolvers),
 });
 
 const rootResolveFunction = (parent, args, context, info) => {
