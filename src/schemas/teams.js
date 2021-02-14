@@ -12,7 +12,7 @@ const teamsTypeDefs = gql`
     getTeam(id: Int!): Team
     getAllTeams: [Team!]!
     latestOrders(id: Int!, amountPrev: Int!): [Orders!]!
-    getItemsSold(id: Int!): [Orders!]!
+    getSalesInfoForTeam(id: Int!): [Orders!]!
     getGlobalLeaderboard: [Team!]!
   }
 
