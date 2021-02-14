@@ -17,19 +17,25 @@ const teamsResolvers = {
       return models.Orders.findAll({
         attributes: ['orderNumber', 'price', 'purchaseDate'],
         where: {
-          teamID: id,
+          id,
         },
         order: [['purchaseDate', 'DESC']],
         limit: amountPrev,
       });
     },
-    async getItemsSold(root, { id }) {
-      return models.Orders.findAll({
-        attributes: ['teamID, numberOfItems', [sequelize.fn('SUM', sequelize.col('numberOfItems')), 'itemsSold']],
+    async getSalesInfoForTeam(root, { id }) {
+      return models.Team.findOne({
+        attributes: ['itemsSold', 'amountRaised'],
         where: {
-          teamID: id,
+          id,
         },
-        group: ['teamID'],
+      });
+    },
+
+    async getGlobalLeaderboard(root, args) {
+      return models.Team.findAll({
+        attributes: ['name', 'amountRaised', 'itemsSold'],
+        order: [['itemsSold', 'DESC']],
       });
     },
   },
