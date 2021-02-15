@@ -5,7 +5,8 @@ module.exports = {
         allowNull: false,
         autoIncrement: false,
         primaryKey: true,
-        type: Sequelize.STRING,
+        type: Sequelize.UUIDV4,
+        unique: true,
       },
       name: {
         type: Sequelize.STRING,
