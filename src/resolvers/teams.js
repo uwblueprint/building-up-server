@@ -42,13 +42,18 @@ const teamsResolvers = {
 
   Mutation: {
     async createTeam(root, { name, organization, amountRaised, itemsSold }) {
-      return models.Team.create({
-        name,
-        organization,
-        amountRaised,
-        itemsSold,
-      });
+      try {
+        return models.Team.create({
+          name,
+          organization,
+          amountRaised,
+          itemsSold,
+        });
+      } catch (SequelizeUniqueConstraintError) {
+        createTeam(root, { name, organization, amountRaised, itemsSold });
+      }
     },
+
     async deleteTeam(root, { id }) {
       models.Team.destroy({
         where: {
