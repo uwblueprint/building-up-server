@@ -53,7 +53,6 @@ const teamsResolvers = {
         createTeam(root, { name, organization, amountRaised, itemsSold });
       }
     },
-
     async deleteTeam(root, { id }) {
       models.Team.destroy({
         where: {
