@@ -1,5 +1,4 @@
 const models = require('../models');
-const { incrementTeamScore, decrementTeamScore } = require('../redis/leaderboard');
 
 const noteAttributesEnum = {
   userId: 0,
@@ -15,12 +14,12 @@ function findById(orderNumber) {
   });
 }
 
-function incrementCacheScore(teamId, teamName, quantity) {
-  incrementTeamScore(teamId, teamName, quantity);
+function incrementTeamScore(teamID, quantity) {
+  models.Team.increment(['itemsSold'], { by: quantity, where: { id: teamID } });
 }
 
-function decrementCacheScore(teamId, teamName, quantity) {
-  decrementTeamScore(teamId, teamName, -Math.abs(quantity));
+function decrementTeamScore(teamID, quantity) {
+  models.Team.decrement(['itemsSold'], { by: Math.abs(quantity), where: { id: teamID } });
 }
 
 /*
@@ -149,11 +148,7 @@ const captureOrderWebhook = async (req, res) => {
       });
 
       // succesful payment record creation, now we can add to redis.
-      incrementCacheScore(
-        parseInt(noteAttributesMap.get(noteAttributesEnum.teamId), 10),
-        noteAttributesMap.get(noteAttributesEnum.teamName),
-        numberOfItems,
-      );
+      incrementTeamScore(parseInt(noteAttributesMap.get(noteAttributesEnum.teamID), 10), numberOfItems);
 
       // return 200 ok response
       res.json({
@@ -194,7 +189,7 @@ const cancelOrderWebhook = async (req, res) => {
 
       if (rowsDeleted === 1) {
         // succesful payment record deleted, now we can update redis.
-        decrementCacheScore(parseInt(row.teamId, 10), row.teamName, row.numberOfItems);
+        decrementTeamScore(parseInt(row.teamID, 10), row.numberOfItems);
 
         res.json({
           Message: 'Success: payment record was deleted',
@@ -261,9 +256,8 @@ const updateOrderWebhook = async (req, res) => {
           // update redis cache if quantity changed
           if (Object.hasOwnProperty.call(changelog, 'numberOfItems')) {
             // update cache score in redis
-            incrementCacheScore(
-              parseInt(event.note_attributes[noteAttributesEnum.teamId].value, 10),
-              event.note_attributes[noteAttributesEnum.teamName].value,
+            incrementTeamScore(
+              parseInt(event.note_attributes[noteAttributesEnum.teamID].value, 10),
               changelog.numberOfItems - existingOrder.numberOfItems,
             );
           }
