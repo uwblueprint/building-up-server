@@ -1,4 +1,5 @@
 const models = require('../models');
+const { incrementTeamScore, decrementTeamScore } = require('./team');
 
 const noteAttributesEnum = {
   userId: 0,
@@ -12,14 +13,6 @@ function findById(orderNumber) {
       orderNumber,
     },
   });
-}
-
-function incrementTeamScore(teamID, quantity) {
-  models.Team.increment(['itemsSold'], { by: quantity, where: { id: teamID } });
-}
-
-function decrementTeamScore(teamID, quantity) {
-  models.Team.decrement(['itemsSold'], { by: Math.abs(quantity), where: { id: teamID } });
 }
 
 /*
