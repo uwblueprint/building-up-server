@@ -7,7 +7,7 @@ const noteAttributesEnum = {
 };
 
 function findById(orderNumber) {
-  return models.Orders.findOne({
+  return models.Order.findOne({
     where: {
       orderNumber,
     },
@@ -137,7 +137,7 @@ const captureOrderWebhook = async (req, res) => {
 
   if (!error) {
     try {
-      const item = await models.Orders.create({
+      const item = await models.Order.create({
         orderNumber,
         userId: noteAttributesMap.get(noteAttributesEnum.userId),
         teamId: noteAttributesMap.get(noteAttributesEnum.teamId),
@@ -181,7 +181,7 @@ const cancelOrderWebhook = async (req, res) => {
   try {
     const row = await findById(event.order_number);
     if (row !== null) {
-      const rowsDeleted = await models.Orders.destroy({
+      const rowsDeleted = await models.Order.destroy({
         where: {
           orderNumber: event.order_number,
         },
@@ -245,7 +245,7 @@ const updateOrderWebhook = async (req, res) => {
 
       // if changelog object is not empty, we can update the DB record
       if (Object.keys(changelog).length !== 0) {
-        const rows = await models.Orders.update(changelog, {
+        const rows = await models.Order.update(changelog, {
           where: {
             orderNumber: event.order_number,
           },
