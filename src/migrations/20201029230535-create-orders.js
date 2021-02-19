@@ -14,24 +14,10 @@ module.exports = {
       },
       userId: {
         type: Sequelize.UUID,
-        references: {
-          model: {
-            tableName: 'Users',
-            schema: 'public',
-          },
-          key: 'id',
-        },
         allowNull: false,
       },
       teamId: {
         type: Sequelize.INTEGER,
-        references: {
-          model: {
-            tableName: 'Teams',
-            schema: 'public',
-          },
-          key: 'id',
-        },
         allowNull: false,
       },
       price: {
