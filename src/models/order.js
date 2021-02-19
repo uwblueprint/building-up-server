@@ -1,4 +1,6 @@
 const { Model } = require('sequelize');
+import { Team } from "./team";
+import { User } from "./user";
 
 module.exports = (sequelize, DataTypes) => {
   class Order extends Model {
@@ -19,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
       },
       userId: {
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
         references: {
           model: User,
           key: 'id',
