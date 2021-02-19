@@ -1,6 +1,6 @@
 version: '3.2'
 services:
-#Primary API
+    #Primary API
     building-up-server:
         depends_on:
             - building-up-db
