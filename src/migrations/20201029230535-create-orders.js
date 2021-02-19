@@ -13,7 +13,7 @@ module.exports = {
         unique: true,
       },
       userId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         references: {
           model: {
             tableName: 'Users',
