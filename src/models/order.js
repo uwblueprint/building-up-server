@@ -26,10 +26,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      teamName: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
       price: {
         type: DataTypes.DECIMAL(20, 2),
         allowNull: false,
