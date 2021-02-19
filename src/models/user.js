@@ -13,9 +13,6 @@ module.exports = (sequelize, DataTypes) => {
   }
   User.init(
     {
-      id: {
-        type: DataTypes.INTEGER
-      },
       firstName: {
         type: DataTypes.STRING,
       },
@@ -35,10 +32,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       teamId: {
         type: DataTypes.INTEGER,
-        references: {
-          model: Team,
-          key: 'id',
-        }
       },
     },
     {
