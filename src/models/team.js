@@ -52,6 +52,5 @@ module.exports = (sequelize, DataTypes) => {
       modelName: 'Team',
     },
   );
-  // Team.beforeCreate(team => (team.id = String(generator())));
   return Team;
 };
