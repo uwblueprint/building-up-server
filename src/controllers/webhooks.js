@@ -14,13 +14,13 @@ function findById(orderNumber) {
   });
 }
 
-function incrementTeamScore(teamID, quantity) {
-  models.Team.increment(['itemsSold'], { by: quantity, where: { id: teamID } });
-}
+// function incrementTeamScore(teamID, quantity) {
+//   models.Team.increment(['itemsSold'], { by: quantity, where: { id: teamID } });
+// }
 
-function decrementTeamScore(teamID, quantity) {
-  models.Team.decrement(['itemsSold'], { by: Math.abs(quantity), where: { id: teamID } });
-}
+// function decrementTeamScore(teamID, quantity) {
+//   models.Team.decrement(['itemsSold'], { by: Math.abs(quantity), where: { id: teamID } });
+// }
 
 /*
   computeQuantity takes in the order event and computes the
@@ -148,7 +148,7 @@ const captureOrderWebhook = async (req, res) => {
       });
 
       // succesful payment record creation, now we can add to redis.
-      incrementTeamScore(parseInt(noteAttributesMap.get(noteAttributesEnum.teamID), 10), numberOfItems);
+      // incrementTeamScore(parseInt(noteAttributesMap.get(noteAttributesEnum.teamID), 10), numberOfItems);
 
       // return 200 ok response
       res.json({
@@ -189,7 +189,7 @@ const cancelOrderWebhook = async (req, res) => {
 
       if (rowsDeleted === 1) {
         // succesful payment record deleted, now we can update redis.
-        decrementTeamScore(parseInt(row.teamID, 10), row.numberOfItems);
+        // decrementTeamScore(parseInt(row.teamID, 10), row.numberOfItems);
 
         res.json({
           Message: 'Success: payment record was deleted',
@@ -256,10 +256,10 @@ const updateOrderWebhook = async (req, res) => {
           // update redis cache if quantity changed
           if (Object.hasOwnProperty.call(changelog, 'numberOfItems')) {
             // update cache score in redis
-            incrementTeamScore(
-              parseInt(event.note_attributes[noteAttributesEnum.teamID].value, 10),
-              changelog.numberOfItems - existingOrder.numberOfItems,
-            );
+            // incrementTeamScore(
+            //   parseInt(event.note_attributes[noteAttributesEnum.teamID].value, 10),
+            //   changelog.numberOfItems - existingOrder.numberOfItems,
+            // );
           }
 
           res.json({
