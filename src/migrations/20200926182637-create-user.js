@@ -25,7 +25,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       teamId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,

@@ -148,7 +148,7 @@ const captureOrderWebhook = async (req, res) => {
       });
 
       // succesful payment record creation, now we can add to redis.
-      incrementTeamScore(parseInt(noteAttributesMap.get(noteAttributesEnum.teamID), 10), numberOfItems);
+      incrementTeamScore(noteAttributesMap.get(noteAttributesEnum.teamID), numberOfItems);
 
       // return 200 ok response
       res.json({
@@ -189,7 +189,7 @@ const cancelOrderWebhook = async (req, res) => {
 
       if (rowsDeleted === 1) {
         // succesful payment record deleted, now we can update redis.
-        decrementTeamScore(parseInt(row.teamID, 10), row.numberOfItems);
+        decrementTeamScore(row.teamID, 10, row.numberOfItems);
 
         res.json({
           Message: 'Success: payment record was deleted',
@@ -257,7 +257,8 @@ const updateOrderWebhook = async (req, res) => {
           if (Object.hasOwnProperty.call(changelog, 'numberOfItems')) {
             // update cache score in redis
             incrementTeamScore(
-              parseInt(event.note_attributes[noteAttributesEnum.teamID].value, 10),
+              event.note_attributes[noteAttributesEnum.teamID].value,
+              10,
               changelog.numberOfItems - existingOrder.numberOfItems,
             );
           }

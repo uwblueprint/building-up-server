@@ -24,7 +24,7 @@ module.exports = {
         allowNull: false,
       },
       teamID: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         references: {
           model: {
             tableName: 'Teams',

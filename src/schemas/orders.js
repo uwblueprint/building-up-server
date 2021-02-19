@@ -4,7 +4,7 @@ const ordersTypeDefs = gql`
   type Orders {
     orderNumber: Int!
     userID: Int!
-    teamID: Int!
+    teamID: String!
     teamName: String!
     price: Int!
     numberOfItems: Int!
