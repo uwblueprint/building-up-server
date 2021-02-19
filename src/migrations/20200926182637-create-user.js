@@ -26,6 +26,13 @@ module.exports = {
       },
       teamId: {
         type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: 'Teams',
+            schema: 'public',
+          },
+          key: 'id',
+        },
       },
       createdAt: {
         allowNull: false,

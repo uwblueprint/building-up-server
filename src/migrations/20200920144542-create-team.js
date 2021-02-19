@@ -14,7 +14,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       amountRaised: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.DECIMAL(20, 2),
       },
       itemsSold: {
         type: Sequelize.INTEGER,

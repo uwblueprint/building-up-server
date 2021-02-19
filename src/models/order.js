@@ -13,13 +13,43 @@ module.exports = (sequelize, DataTypes) => {
   }
   Order.init(
     {
-      orderNumber: DataTypes.INTEGER,
-      userId: DataTypes.INTEGER,
-      teamId: DataTypes.INTEGER,
-      teamName: DataTypes.STRING,
-      price: DataTypes.DECIMAL(20, 2),
-      numberOfItems: DataTypes.INTEGER,
-      purchaseDate: DataTypes.DATE,
+      orderNumber: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        unique: true,
+      },
+      userId: {
+        type: DataTypes.UUID,
+        references: {
+          model: User,
+          key: 'id',
+        },
+        allowNull: false,
+      },
+      teamId: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: Team,
+          key: 'id',
+        },
+        allowNull: false,
+      },
+      teamName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      price: {
+        type: DataTypes.DECIMAL(20, 2),
+        allowNull: false,
+      },
+      numberOfItems: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      purchaseDate: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
     },
     {
       sequelize,
