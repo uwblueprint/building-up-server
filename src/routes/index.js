@@ -29,10 +29,14 @@ router.use((req, res, next) => {
   }
 });
 
-router.post('/captureOrderWebhook', captureOrderWebhook);
+router.get('/', (req, res) => {
+  res.send('hello world');
+});
 
-router.post('/cancelOrderWebhook', cancelOrderWebhook);
+// router.post('/captureOrderWebhook', captureOrderWebhook);
 
-router.post('/updateOrderWebhook', updateOrderWebhook);
+// router.post('/cancelOrderWebhook', cancelOrderWebhook);
+
+// router.post('/updateOrderWebhook', updateOrderWebhook);
 
 module.exports = router;
