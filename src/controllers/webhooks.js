@@ -1,18 +1,11 @@
 const models = require('../models');
+const { findByOrderNumber } = require('./order');
 const { incrementTeamScore, decrementTeamScore } = require('./team');
 
 const noteAttributesEnum = {
   userId: 0,
   teamId: 1,
 };
-
-function findById(orderNumber) {
-  return models.Order.findOne({
-    where: {
-      orderNumber,
-    },
-  });
-}
 
 /*
   computeQuantity takes in the order event and computes the
@@ -86,7 +79,7 @@ function orderChanges(incomingOrder, existingOrder) {
   }
 
   return changelog;
-} 
+}
 
 const captureOrderWebhook = async (req, res) => {
   let event;
@@ -166,7 +159,7 @@ const cancelOrderWebhook = async (req, res) => {
 
   try {
     const { order_number } = event;
-    const row = await findById(order_number);
+    const row = await findByOrderNumber(order_number);
     const { teamId, numberOfItems } = row;
 
     if (row !== null) {
@@ -181,7 +174,7 @@ const cancelOrderWebhook = async (req, res) => {
 
         res.json({
           Message: 'Success: payment record was deleted',
-          order_number: order_number,
+          order_number,
         });
       } else {
         /*
@@ -222,13 +215,13 @@ const updateOrderWebhook = async (req, res) => {
   // since order_numbers are unique in our DB, there should only be 1 order found.
   try {
     const { order_number, note_attributes } = event;
-    const existingOrder = await findById(order_number);
+    const existingOrder = await findByOrderNumber(order_number);
     const { numberOfItems } = existingOrder;
-    
+
     if (existingOrder != null) {
       // we can cross reference the incoming changes with existing data in our DB.
       const changelog = orderChanges(event, existingOrder);
-      
+
       // if changelog object is not empty, we can update the DB record
       if (Object.keys(changelog).length !== 0) {
         const rows = await models.Order.update(changelog, {
@@ -248,7 +241,7 @@ const updateOrderWebhook = async (req, res) => {
 
           res.json({
             Message: 'Success: payment record was updated',
-            order_number: order_number,
+            order_number,
             number_rows: rows[0],
             item: rows[1],
           });
@@ -258,7 +251,7 @@ const updateOrderWebhook = async (req, res) => {
       else if (Object.keys(changelog).length === 0 && changelog.constructor === Object) {
         res.json({
           Message: 'Success: no DB changes need to be made to order record',
-          order_number: order_number,
+          order_number,
         });
       } else {
         throw new Error('no changelog object initiated');

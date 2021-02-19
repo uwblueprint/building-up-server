@@ -8,6 +8,5 @@ const decrementTeamScore = (teamId, quantity) => {
   models.Team.decrement(['itemsSold'], { by: Math.abs(quantity), where: { id: teamId } });
 };
 
-
 exports.incrementTeamScore = incrementTeamScore;
 exports.decrementTeamScore = decrementTeamScore;
