@@ -46,10 +46,6 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         type: DataTypes.DATE,
       },
-      // name: DataTypes.STRING,
-      // organization: DataTypes.STRING,
-      // amountRaised: DataTypes.DECIMAL(20, 2),
-      // itemsSold: DataTypes.INTEGER,
     },
     {
       sequelize,
