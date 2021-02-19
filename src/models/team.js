@@ -4,7 +4,7 @@ var customAlphabet = require('nanoid-good').customAlphabet(en);
 
 // Based on documentation here https://github.com/ai/nanoid
 const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const generator = customAlphabet(alphabet, 5);
+const generator = customAlphabet(alphabet, 6);
 
 module.exports = (sequelize, DataTypes) => {
   class Team extends Model {
