@@ -50,7 +50,7 @@ const teamsResolvers = {
           itemsSold,
         });
       } catch (SequelizeUniqueConstraintError) {
-        createTeam(root, { name, organization, amountRaised, itemsSold });
+        return createTeam(root, { name, organization, amountRaised, itemsSold });
       }
     },
     async deleteTeam(root, { id }) {

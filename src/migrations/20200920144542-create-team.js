@@ -3,8 +3,8 @@ module.exports = {
     await queryInterface.createTable('Teams', {
       id: {
         allowNull: false,
-        autoIncrement: false,
         primaryKey: true,
+        unique: true,
         type: Sequelize.STRING,
       },
       name: {
