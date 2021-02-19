@@ -2,7 +2,6 @@ const { ApolloServer } = require('apollo-server-express');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const { verify } = require('jsonwebtoken');
-// const cors = require('cors');
 
 const { schema } = require('./graphql');
 const models = require('./models');
