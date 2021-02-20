@@ -1,5 +1,7 @@
 const { sequelize } = require('../models');
 const models = require('../models');
+const retry = require('retry-as-promised');
+const { Sequelize } = require('sequelize');
 
 const teamsResolvers = {
   Query: {
@@ -42,16 +44,27 @@ const teamsResolvers = {
 
   Mutation: {
     async createTeam(root, { name, organization, amountRaised, itemsSold }) {
-      try {
-        return models.Team.create({
-          name,
-          organization,
-          amountRaised,
-          itemsSold,
-        });
-      } catch (SequelizeUniqueConstraintError) {
-        return createTeam(root, { name, organization, amountRaised, itemsSold });
-      }
+      return retry(
+        () => {
+          return sequelize.transaction(async t => {
+            return models.Team.create(
+              {
+                name,
+                organization,
+                amountRaised,
+                itemsSold,
+              },
+              {
+                transaction: t,
+              },
+            );
+          });
+        },
+        {
+          max: 999,
+          match: [Sequelize.UniqueConstraintError],
+        },
+      );
     },
     async deleteTeam(root, { id }) {
       models.Team.destroy({
