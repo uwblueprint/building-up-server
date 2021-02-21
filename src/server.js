@@ -8,7 +8,7 @@ const models = require('./models');
 const routes = require('./routes');
 const { ACCESS_TOKEN_SECRET } = require('./config/config');
 
-const port = 4000;
+const port = process.env.PORT || 4000;
 const accessTokenSecret = ACCESS_TOKEN_SECRET;
 
 const server = new ApolloServer({
