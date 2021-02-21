@@ -17,7 +17,7 @@ const sequelize = new Sequelize({
   username: POSTGRES_PROD_USER,
   password: POSTGRES_PROD_PASSWORD,
   host: POSTGRES_PROD_HOST,
-  port: 5432,
+  port: POSTGRES_PROD_PORT,
   dialect: 'postgres',
   dialectOptions: {
     ssl: {
