@@ -33,10 +33,10 @@ router.get('/', (req, res) => {
   res.send('hello world');
 });
 
-// router.post('/captureOrderWebhook', captureOrderWebhook);
+router.post('/captureOrderWebhook', captureOrderWebhook);
 
-// router.post('/cancelOrderWebhook', cancelOrderWebhook);
+router.post('/cancelOrderWebhook', cancelOrderWebhook);
 
-// router.post('/updateOrderWebhook', updateOrderWebhook);
+router.post('/updateOrderWebhook', updateOrderWebhook);
 
 module.exports = router;
