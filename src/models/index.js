@@ -12,7 +12,6 @@ const {
 const basename = path.basename(__filename);
 const db = {};
 
-// test
 const sequelize = new Sequelize({
   database: POSTGRES_PROD_DB,
   username: POSTGRES_PROD_USER,
