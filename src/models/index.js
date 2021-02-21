@@ -19,11 +19,11 @@ const sequelize = new Sequelize({
   host: POSTGRES_PROD_HOST,
   port: POSTGRES_PROD_PORT,
   dialect: 'postgres',
-  // dialectOptions: {
-  //   ssl: {
-  //     require: true,
-  //     rejectUnauthorized: false,
-  //   },
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
   },
 });
 
