@@ -1,8 +1,9 @@
 const crypto = require('crypto');
+const { SHOPIFY_KEY } = require('../config/config');
 
 function verifyShopifyHeader(hmac, rawBody) {
   // Retrieving the key
-  const secretKey = process.env.SHOPIFY_KEY;
+  const secretKey = SHOPIFY_KEY;
   /* Compare the computed HMAC digest based on the shared secret
    * and the request contents
    */
