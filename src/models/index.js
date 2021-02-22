@@ -2,28 +2,32 @@ const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
 const {
-  POSTGRES_PROD_DB,
-  POSTGRES_PROD_USER,
-  POSTGRES_PROD_PASSWORD,
-  POSTGRES_PROD_HOST,
-  POSTGRES_PROD_PORT,
+  POSTGRES_DB,
+  POSTGRES_USER,
+  POSTGRES_PASSWORD,
+  POSTGRES_HOST,
+  POSTGRES_PORT,
+  POSTGRES_REQUIRE_SSL,
 } = require('../config/config');
 
 const basename = path.basename(__filename);
 const db = {};
 
 const sequelize = new Sequelize({
-  database: POSTGRES_PROD_DB,
-  username: POSTGRES_PROD_USER,
-  password: POSTGRES_PROD_PASSWORD,
-  host: POSTGRES_PROD_HOST,
-  port: POSTGRES_PROD_PORT,
+  database: POSTGRES_DB,
+  username: POSTGRES_USER,
+  password: POSTGRES_PASSWORD,
+  host: POSTGRES_HOST,
+  port: POSTGRES_PORT,
   dialect: 'postgres',
   dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false,
-    },
+    ssl:
+      POSTGRES_REQUIRE_SSL === 1
+        ? {
+            require: true,
+            rejectUnauthorized: false,
+          }
+        : undefined,
   },
 });
 
