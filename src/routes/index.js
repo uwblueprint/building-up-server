@@ -29,6 +29,11 @@ router.use((req, res, next) => {
   }
 });
 
+// Temporary for deployed page
+router.get('/', (req, res) => {
+  res.send('hello world');
+});
+
 router.post('/captureOrderWebhook', captureOrderWebhook);
 
 router.post('/cancelOrderWebhook', cancelOrderWebhook);
