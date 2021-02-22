@@ -1,5 +1,6 @@
 const { Model } = require('sequelize');
 var en = require('nanoid-good/locale/en');
+var fr = require('nanoid-good/locale/fr');
 var customAlphabet = require('nanoid-good').customAlphabet(en, fr);
 
 // Based on documentation here https://github.com/ai/nanoid
