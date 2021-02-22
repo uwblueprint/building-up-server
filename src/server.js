@@ -18,7 +18,14 @@ const server = new ApolloServer({
 
 const app = express();
 
-const corsOptions = { origin: 'http://localhost:3000', credentials: true };
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',
+    /https:\/\/building-up\.netlify\.app/,
+    /https:\/\/deploy-preview-\d+--building-up\.netlify\.app/,
+  ],
+  credentials: true,
+};
 
 app.use(cookieParser());
 
