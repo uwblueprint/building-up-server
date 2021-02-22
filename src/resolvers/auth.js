@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-require('dotenv').config({ path: '../keys.env' });
+const { REFRESH_TOKEN_SECRET, ACCESS_TOKEN_SECRET } = require('../config/config');
 const models = require('../models');
 
 const authResolvers = {
@@ -40,10 +40,10 @@ const authResolvers = {
           return null;
         }
 
-        const refreshToken = jwt.sign({ userId: user.id }, process.env.REFRESH_TOKEN_SECRET, {
+        const refreshToken = jwt.sign({ userId: user.id }, REFRESH_TOKEN_SECRET, {
           expiresIn: '7d',
         });
-        const accessToken = jwt.sign({ userId: user.id }, process.env.ACCESS_TOKEN_SECRET, {
+        const accessToken = jwt.sign({ userId: user.id }, ACCESS_TOKEN_SECRET, {
           expiresIn: '15min',
         });
 

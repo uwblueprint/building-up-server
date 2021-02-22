@@ -37,4 +37,3 @@ const usersTypeDefs = gql`
 `;
 
 exports.usersTypeDefs = usersTypeDefs;
-exports.usersTypeDefs = usersTypeDefs;

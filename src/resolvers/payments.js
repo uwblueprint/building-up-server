@@ -1,3 +1,4 @@
+// STRIPE_SECRET_KEY currently not in use, will be removed
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const paymentsResolvers = {

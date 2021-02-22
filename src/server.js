@@ -2,15 +2,14 @@ const { ApolloServer } = require('apollo-server-express');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const { verify } = require('jsonwebtoken');
-const cors = require('cors');
-require('dotenv').config({ path: './keys.env' });
 
 const { schema } = require('./graphql');
 const models = require('./models');
 const routes = require('./routes');
+const { ACCESS_TOKEN_SECRET } = require('./config/config');
 
-const port = 4000;
-const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
+const port = process.env.PORT || 4000;
+const accessTokenSecret = ACCESS_TOKEN_SECRET;
 
 const server = new ApolloServer({
   schema,
@@ -19,7 +18,14 @@ const server = new ApolloServer({
 
 const app = express();
 
-const corsOptions = { origin: 'http://localhost:3000', credentials: true };
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',
+    /https:\/\/building-up\.netlify\.app/,
+    /https:\/\/deploy-preview-\d+--building-up\.netlify\.app/,
+  ],
+  credentials: true,
+};
 
 app.use(cookieParser());
 
