@@ -1,9 +1,9 @@
 const { Model } = require('sequelize');
 var en = require('nanoid-good/locale/en');
-var customAlphabet = require('nanoid-good').customAlphabet(en);
+var customAlphabet = require('nanoid-good').customAlphabet(en, fr);
 
 // Based on documentation here https://github.com/ai/nanoid
-const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const generator = customAlphabet(alphabet, 6);
 
 module.exports = (sequelize, DataTypes) => {
