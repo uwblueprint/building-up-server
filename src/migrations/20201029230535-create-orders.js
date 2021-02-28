@@ -12,30 +12,12 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      userID: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: {
-            tableName: 'Users',
-            schema: 'public',
-          },
-          key: 'id',
-        },
+      userId: {
+        type: Sequelize.UUID,
         allowNull: false,
       },
-      teamID: {
+      teamId: {
         type: Sequelize.INTEGER,
-        references: {
-          model: {
-            tableName: 'Teams',
-            schema: 'public',
-          },
-          key: 'id',
-        },
-        allowNull: false,
-      },
-      teamName: {
-        type: Sequelize.STRING,
         allowNull: false,
       },
       price: {

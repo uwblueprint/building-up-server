@@ -8,15 +8,24 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Team.hasMany(models.User);
+      Team.hasMany(models.Order);
     }
   }
   Team.init(
     {
-      name: DataTypes.STRING,
-      organization: DataTypes.STRING,
-      amountRaised: DataTypes.DECIMAL(20, 2),
-      itemsSold: DataTypes.INTEGER,
+      name: {
+        type: DataTypes.STRING,
+      },
+      organization: {
+        type: DataTypes.STRING,
+      },
+      amountRaised: {
+        type: DataTypes.DECIMAL(20, 2),
+      },
+      itemsSold: {
+        type: DataTypes.INTEGER,
+      },
     },
     {
       sequelize,
