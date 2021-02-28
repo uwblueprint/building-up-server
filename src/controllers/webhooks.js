@@ -1,26 +1,11 @@
 const models = require('../models');
+const { findByOrderNumber } = require('./order');
+const { incrementTeamSales } = require('./team');
 
 const noteAttributesEnum = {
-  userID: 0,
-  teamID: 1,
-  teamName: 2,
+  userId: 0,
+  teamId: 1,
 };
-
-function findById(orderNumber) {
-  return models.Orders.findOne({
-    where: {
-      orderNumber,
-    },
-  });
-}
-
-function incrementTeamScore(teamID, quantity) {
-  models.Team.increment(['itemsSold'], { by: quantity, where: { id: teamID } });
-}
-
-function decrementTeamScore(teamID, quantity) {
-  models.Team.decrement(['itemsSold'], { by: Math.abs(quantity), where: { id: teamID } });
-}
 
 /*
   computeQuantity takes in the order event and computes the
@@ -72,26 +57,24 @@ function computeUpdatedPrice(event) {
 function orderChanges(incomingOrder, existingOrder) {
   // this function will return an object of updated values relevant to our DB table
   const changelog = {};
+  const { note_attributes } = incomingOrder;
+  const { userId, teamId, price, numberOfItems } = existingOrder;
 
-  if (incomingOrder.note_attributes[noteAttributesEnum.userID].value !== existingOrder.userID) {
-    changelog.userID = incomingOrder.note_attributes[noteAttributesEnum.userID].value;
+  if (note_attributes[noteAttributesEnum.userId].value !== userId) {
+    changelog.userId = note_attributes[noteAttributesEnum.userId].value;
   }
 
-  if (incomingOrder.note_attributes[noteAttributesEnum.teamID].value !== existingOrder.teamID) {
-    changelog.teamID = incomingOrder.note_attributes[noteAttributesEnum.teamID].value;
-  }
-
-  if (incomingOrder.note_attributes[noteAttributesEnum.teamName].value !== existingOrder.teamName) {
-    changelog.teamName = incomingOrder.note_attributes[noteAttributesEnum.teamName].value;
+  if (note_attributes[noteAttributesEnum.teamId].value !== teamId) {
+    changelog.teamId = note_attributes[noteAttributesEnum.teamId].value;
   }
 
   const newPrice = computeUpdatedPrice(incomingOrder);
-  if (newPrice !== existingOrder.price) {
+  if (newPrice !== price) {
     changelog.price = newPrice;
   }
 
   const newQuantity = computeQuantity(incomingOrder);
-  if (newQuantity !== existingOrder.numberOfItems) {
+  if (newQuantity !== numberOfItems) {
     changelog.numberOfItems = newQuantity;
   }
 
@@ -109,16 +92,20 @@ const captureOrderWebhook = async (req, res) => {
     // eslint-disable-next-line no-console
     console.error(`Error: ${err.message}`);
   }
-  // the Shopify order number from the JSON payload.
-  const orderNumber = event.order_number;
+
+  // order_number - Shopify order number
+  // subtotal_price - includes any discounts, excludes tax
+  // date of purchase from Shopify request data.
+
+  const { order_number, note_attributes, subtotal_price, created_at } = event;
 
   // create noteAttributesMap hashmap.
   const noteAttributesMap = new Map();
 
-  // userID is index 0, teamID is index 1, teamName is index 2.
+  // userId is index 0, teamId is index 1
   for (let i = 0; i < 3; i += 1) {
-    if (typeof event.note_attributes[i] !== 'undefined') {
-      noteAttributesMap.set(i, event.note_attributes[i].value);
+    if (typeof note_attributes[i] !== 'undefined') {
+      noteAttributesMap.set(i, note_attributes[i].value);
     } else {
       error = true;
       // eslint-disable-next-line no-console
@@ -126,29 +113,21 @@ const captureOrderWebhook = async (req, res) => {
     }
   }
 
-  // includes any discounts, excludes tax.
-  const price = event.subtotal_price;
-
   // quantity of items sold.
   const numberOfItems = computeQuantity(event);
 
-  // date of purchase from Shopify request data.
-  const purchaseDate = event.created_at;
-
   if (!error) {
     try {
-      const item = await models.Orders.create({
-        orderNumber,
-        userID: noteAttributesMap.get(noteAttributesEnum.userID),
-        teamID: noteAttributesMap.get(noteAttributesEnum.teamID),
-        teamName: noteAttributesMap.get(noteAttributesEnum.teamName),
-        price,
+      const item = await models.Order.create({
+        orderNumber: order_number,
+        userId: noteAttributesMap.get(noteAttributesEnum.userId),
+        teamId: noteAttributesMap.get(noteAttributesEnum.teamId),
+        price: subtotal_price,
         numberOfItems,
-        purchaseDate,
+        purchaseDate: created_at,
       });
 
-      // succesful payment record creation, now we can add to redis.
-      incrementTeamScore(noteAttributesMap.get(noteAttributesEnum.teamID), numberOfItems);
+      incrementTeamSales(noteAttributesMap.get(noteAttributesEnum.teamId), numberOfItems);
 
       // return 200 ok response
       res.json({
@@ -179,31 +158,33 @@ const cancelOrderWebhook = async (req, res) => {
   }
 
   try {
-    const row = await findById(event.order_number);
+    const { order_number } = event;
+    const row = await findByOrderNumber(order_number);
+    const { teamId, numberOfItems } = row;
+
     if (row !== null) {
-      const rowsDeleted = await models.Orders.destroy({
+      const rowsDeleted = await models.Order.destroy({
         where: {
-          orderNumber: event.order_number,
+          orderNumber: order_number,
         },
       });
 
       if (rowsDeleted === 1) {
-        // succesful payment record deleted, now we can update redis.
-        decrementTeamScore(row.teamID, 10, row.numberOfItems);
+        decrementTeamSales(teamId, numberOfItems);
 
         res.json({
           Message: 'Success: payment record was deleted',
-          order_number: event.order_number,
+          order_number,
         });
       } else {
         /*
         Edge case where we had multiple rows with the same order_number.
         This should not happen as we have a unique constraint in the DB.
         */
-        throw new Error(`deleted multiple records with the same order_number: ${event.order_number}`);
+        throw new Error(`deleted multiple records with the same order_number: ${order_number}`);
       }
     } else {
-      throw new Error(`no payment record with order_number: ${event.order_number} to be deleted`);
+      throw new Error(`no payment record with order_number: ${order_number} to be deleted`);
     }
   } catch (err) {
     // eslint-disable-next-line no-console
@@ -215,11 +196,7 @@ const cancelOrderWebhook = async (req, res) => {
 /*
 updateOrderWebhook.
 Only update a DB order record if there are changes to important fields like the
-userID, teamID, teamName, price, numberOfItems, etc.
-
-Also, the webhook will have issues trying to update the redis cache if the teamID
-or teamName is changed. We will need a better method of syncing our DB with redis
-in the future.
+userId, teamId, price, numberOfItems, etc.
 
 If an update occurs on something like shipping address, or phone number, then we
 do not need to update any records in the DB.
@@ -237,7 +214,9 @@ const updateOrderWebhook = async (req, res) => {
   // first find the record in the DB.
   // since order_numbers are unique in our DB, there should only be 1 order found.
   try {
-    const existingOrder = await findById(event.order_number);
+    const { order_number, note_attributes } = event;
+    const existingOrder = await findByOrderNumber(order_number);
+    const { numberOfItems } = existingOrder;
 
     if (existingOrder != null) {
       // we can cross reference the incoming changes with existing data in our DB.
@@ -245,27 +224,24 @@ const updateOrderWebhook = async (req, res) => {
 
       // if changelog object is not empty, we can update the DB record
       if (Object.keys(changelog).length !== 0) {
-        const rows = await models.Orders.update(changelog, {
+        const rows = await models.Order.update(changelog, {
           where: {
-            orderNumber: event.order_number,
+            orderNumber: order_number,
           },
           returning: true,
         });
 
         if (rows[0] === 1 && rows[1] !== null) {
-          // update redis cache if quantity changed
           if (Object.hasOwnProperty.call(changelog, 'numberOfItems')) {
-            // update cache score in redis
-            incrementTeamScore(
-              event.note_attributes[noteAttributesEnum.teamID].value,
-              10,
-              changelog.numberOfItems - existingOrder.numberOfItems,
+            incrementTeamSales(
+              note_attributes[noteAttributesEnum.teamId].value,
+              changelog.numberOfItems - numberOfItems,
             );
           }
 
           res.json({
             Message: 'Success: payment record was updated',
-            order_number: event.order_number,
+            order_number,
             number_rows: rows[0],
             item: rows[1],
           });
@@ -275,13 +251,13 @@ const updateOrderWebhook = async (req, res) => {
       else if (Object.keys(changelog).length === 0 && changelog.constructor === Object) {
         res.json({
           Message: 'Success: no DB changes need to be made to order record',
-          order_number: event.order_number,
+          order_number,
         });
       } else {
         throw new Error('no changelog object initiated');
       }
     } else {
-      throw new Error(`no payment record with orderNumber: ${event.order_number} to be updated `);
+      throw new Error(`no payment record with orderNumber: ${order_number} to be updated `);
     }
   } catch (err) {
     // eslint-disable-next-line no-console

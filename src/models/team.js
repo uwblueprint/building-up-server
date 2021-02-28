@@ -1,7 +1,7 @@
 const { Model } = require('sequelize');
-var en = require('nanoid-good/locale/en');
-var fr = require('nanoid-good/locale/fr');
-var customAlphabet = require('nanoid-good').customAlphabet(en, fr);
+const en = require('nanoid-good/locale/en');
+const fr = require('nanoid-good/locale/fr');
+const customAlphabet = require('nanoid-good').customAlphabet(en, fr);
 
 // Based on documentation here https://github.com/ai/nanoid
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -15,7 +15,8 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Team.hasMany(models.User);
+      Team.hasMany(models.Order);
     }
   }
   Team.init(
