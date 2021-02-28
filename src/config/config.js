@@ -1,17 +1,10 @@
 module.exports = {
   development: {
-    username: "alfm",
-    password: "buildingup",
-    database: "building_up_dev",
-    host: "building-up-db",
-    dialect: "postgres"
-  },
-  test: {
-    username: "alfm",
-    password: "buildingup",
-    database: "building_up_dev",
-    host: "localhost",
-    dialect: "postgres"
+    username: 'alfm',
+    password: 'buildingup',
+    database: 'building_up_dev',
+    host: 'building-up-db',
+    dialect: 'postgres',
   },
   production: {
     username: process.env.POSTGRES_USER,
@@ -19,6 +12,7 @@ module.exports = {
     database: process.env.POSTGRES_DB,
     host: process.env.POSTGRES_HOST,
     port: process.env.POSTGRES_PORT,
+    dialect: 'postgres',
     dialectOptions: {
       ssl:
         parseInt(process.env.POSTGRES_REQUIRE_SSL, 10) === 1
@@ -28,5 +22,5 @@ module.exports = {
             }
           : undefined,
     },
-  }
+  },
 };
