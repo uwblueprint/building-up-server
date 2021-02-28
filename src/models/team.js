@@ -1,4 +1,11 @@
 const { Model } = require('sequelize');
+const en = require('nanoid-good/locale/en');
+const fr = require('nanoid-good/locale/fr');
+const customAlphabet = require('nanoid-good').customAlphabet(en, fr);
+
+// Based on documentation here https://github.com/ai/nanoid
+const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const generator = customAlphabet(alphabet, 6);
 
 module.exports = (sequelize, DataTypes) => {
   class Team extends Model {
@@ -14,6 +21,13 @@ module.exports = (sequelize, DataTypes) => {
   }
   Team.init(
     {
+      id: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true,
+        unique: true,
+        defaultValue: generator,
+      },
       name: {
         type: DataTypes.STRING,
       },
@@ -25,6 +39,14 @@ module.exports = (sequelize, DataTypes) => {
       },
       itemsSold: {
         type: DataTypes.INTEGER,
+      },
+      createdAt: {
+        allowNull: false,
+        type: DataTypes.DATE,
+      },
+      updatedAt: {
+        allowNull: false,
+        type: DataTypes.DATE,
       },
     },
     {

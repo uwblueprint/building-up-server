@@ -8,15 +8,22 @@ const usersTypeDefs = gql`
     email: String!
     password: String!
     role: String
-    teamId: Int
+    teamId: String
   }
   extend type Query {
-    Users(teamId: Int!): [User]
+    Users(teamId: String!): [User]
     getUser(id: Int!): User
     getAllUsers: [User!]!
   }
   extend type Mutation {
-    addUser(firstName: String!, lastName: String!, email: String!, password: String!, role: String!, teamId: Int!): User
+    addUser(
+      firstName: String!
+      lastName: String!
+      email: String!
+      password: String!
+      role: String!
+      teamId: String!
+    ): User
     updateUser(
       id: Int!
       firstName: String
@@ -24,7 +31,7 @@ const usersTypeDefs = gql`
       email: String
       password: String
       role: String
-      teamId: Int
+      teamId: String
     ): User
   }
 `;

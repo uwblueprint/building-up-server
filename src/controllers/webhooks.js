@@ -1,6 +1,6 @@
 const models = require('../models');
 const { findByOrderNumber } = require('./order');
-const { incrementTeamSales, incrementTeamSales } = require('./team');
+const { incrementTeamSales } = require('./team');
 
 const noteAttributesEnum = {
   userId: 0,
@@ -127,7 +127,7 @@ const captureOrderWebhook = async (req, res) => {
         purchaseDate: created_at,
       });
 
-      incrementTeamSales(parseInt(noteAttributesMap.get(noteAttributesEnum.teamId), 10), numberOfItems);
+      incrementTeamSales(noteAttributesMap.get(noteAttributesEnum.teamId), numberOfItems);
 
       // return 200 ok response
       res.json({
@@ -170,7 +170,7 @@ const cancelOrderWebhook = async (req, res) => {
       });
 
       if (rowsDeleted === 1) {
-        decrementTeamSales(parseInt(teamId, 10), numberOfItems);
+        decrementTeamSales(teamId, numberOfItems);
 
         res.json({
           Message: 'Success: payment record was deleted',
@@ -234,7 +234,7 @@ const updateOrderWebhook = async (req, res) => {
         if (rows[0] === 1 && rows[1] !== null) {
           if (Object.hasOwnProperty.call(changelog, 'numberOfItems')) {
             incrementTeamSales(
-              parseInt(note_attributes[noteAttributesEnum.teamId].value, 10),
+              note_attributes[noteAttributesEnum.teamId].value,
               changelog.numberOfItems - numberOfItems,
             );
           }

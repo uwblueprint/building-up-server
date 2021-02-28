@@ -41,8 +41,10 @@
     "http": "0.0.1-security",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.20",
+    "nanoid-good": "^3.1.0",
     "pg": "^8.3.3",
     "redis": "^3.0.2",
+    "retry-as-promised": "^3.2.0",
     "sequelize": "^6.3.5",
     "stripe": "^8.97.0"
   }

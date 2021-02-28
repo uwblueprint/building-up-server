@@ -17,7 +17,18 @@ module.exports = {
         allowNull: false,
       },
       teamId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
+        references: {
+          model: {
+            tableName: 'Teams',
+            schema: 'public',
+          },
+          key: 'id',
+        },
+        allowNull: false,
+      },
+      teamName: {
+        type: Sequelize.STRING,
         allowNull: false,
       },
       price: {
