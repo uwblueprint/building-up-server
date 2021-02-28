@@ -8,7 +8,6 @@ const config = require(`${__dirname}/../config/config`)[env];
 const basename = path.basename(__filename);
 const db = {};
 
-console.log(config);
 const sequelize = new Sequelize(config.database, config.username, config.password, config);
 
 fs.readdirSync(__dirname)
