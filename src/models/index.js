@@ -1,35 +1,19 @@
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
-const {
-  POSTGRES_DB,
-  POSTGRES_USER,
-  POSTGRES_PASSWORD,
-  POSTGRES_HOST,
-  POSTGRES_PORT,
-  POSTGRES_REQUIRE_SSL,
-} = require('../config/config');
+
+const env = process.env.NODE_ENV || 'development';
+const config = require(`${__dirname}/../config/config`)[env];
 
 const basename = path.basename(__filename);
 const db = {};
 
-const sequelize = new Sequelize({
-  database: POSTGRES_DB,
-  username: POSTGRES_USER,
-  password: POSTGRES_PASSWORD,
-  host: POSTGRES_HOST,
-  port: POSTGRES_PORT,
-  dialect: 'postgres',
-  dialectOptions: {
-    ssl:
-      POSTGRES_REQUIRE_SSL === 1
-        ? {
-            require: true,
-            rejectUnauthorized: false,
-          }
-        : undefined,
-  },
-});
+const sequelize = new Sequelize(
+  config.use_env_variable ? config.env[config.use_env_variable] : config.database,
+  config.username,
+  config.password,
+  config,
+);
 
 fs.readdirSync(__dirname)
   .filter(file => {
