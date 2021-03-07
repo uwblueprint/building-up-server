@@ -12,6 +12,7 @@ const testMsg = {
   html: '<strong>and easy to do anywhere, even with Node.js</strong>',
 };
 
+// TO DO: Expand this to send to multiple users at once, probably just looping through list of msgs
 const sendEmail = msg => {
   sgMail
     .send(msg)
@@ -24,3 +25,5 @@ const sendEmail = msg => {
 };
 
 sendEmail(testMsg);
+
+export default sendEmail;
