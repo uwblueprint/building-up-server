@@ -21,7 +21,7 @@ const authenticateToken = (req, res, next) => {
         const refreshToken = req.cookies['refresh-token'];
         if (!refreshToken) {
           console.log('Missing refresh token');
-          return;
+          return res.status(404).json({ error: 'Missing refresh token' });
         }
 
         const refreshData = jwt.verify(refreshToken, refreshTokenSecret);
