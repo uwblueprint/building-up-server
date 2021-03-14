@@ -1,7 +1,7 @@
-const { sequelize } = require('../models');
-const models = require('../models');
 const retry = require('retry-as-promised');
 const { Sequelize } = require('sequelize');
+const { sequelize } = require('../models');
+const models = require('../models');
 
 const teamsResolvers = {
   Query: {

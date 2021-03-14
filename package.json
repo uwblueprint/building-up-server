@@ -27,6 +27,7 @@
     "sequelize-cli": "^6.2.0"
   },
   "dependencies": {
+    "@sendgrid/mail": "^7.4.2",
     "apollo-server": "^2.17.0",
     "apollo-server-express": "^2.17.0",
     "bcryptjs": "^2.4.3",
