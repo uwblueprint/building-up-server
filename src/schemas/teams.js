@@ -20,6 +20,7 @@ const teamsTypeDefs = gql`
     createTeam(name: String!, organization: String!, amountRaised: Int!, itemsSold: Int!): Team
     deleteTeam(id: String!): Boolean
     updateTeam(id: String!, name: String, organization: String, amountRaised: Int, itemsSold: Int): Team
+    inviteTeam(emails: [String!], teamId: String!): Boolean
   }
 `;
 

@@ -1,7 +1,43 @@
 const retry = require('retry-as-promised');
 const { Sequelize } = require('sequelize');
+const sgMail = require('@sendgrid/mail');
 const { sequelize } = require('../models');
 const models = require('../models');
+// using Twilio SendGrid's v3 Node.js Library
+// https://github.com/sendgrid/sendgrid-nodejs
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+// TO DO: Edit inivitation email subject, text, and html
+// Change teamId
+const createTeamInviteMessage = teamId => {
+  return {
+    from: 'hongyichen@uwblueprint.org',
+    subject: `Invitation to join ${teamId}`,
+    text: 'hello hey whats up join this with this link',
+    html: '<strong> nice </strong>',
+  };
+};
+
+// stick this into another file
+const sendEmail = msg => {
+  sgMail
+    .send(msg)
+    .then(() => {
+      console.log(`Email sent to ${msg.to}`);
+    })
+    .catch(error => {
+      console.error(error);
+    });
+};
+
+const sendTeamInvites = (emails, teamId) => {
+  const message = createTeamInviteMessage(teamId);
+  emails.forEach(email => {
+    const invitationEmail = { to: { email }, ...message };
+    sendEmail(invitationEmail);
+  });
+};
 
 const teamsResolvers = {
   Query: {
@@ -86,6 +122,10 @@ const teamsResolvers = {
 
       await team.save();
       return team;
+    },
+    async inviteTeam(root, { emails, teamId }) {
+      sendTeamInvites(emails, teamId);
+      return true;
     },
   },
 };
