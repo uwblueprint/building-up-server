@@ -33,16 +33,12 @@ const sendEmail = msg => {
     });
 };
 
-// I think we should probably specify somewhere in the message for teamId
-// presumably, it would be in the message which is passed into here
 const inviteTeam = (emails, teamId) => {
   const message = createTeamInviteMessage(teamId);
   emails.forEach(email => {
-    const emailBody = { to: { email }, ...message };
-    sendEmail(emailBody);
+    const invitationEmail = { to: { email }, ...message };
+    sendEmail(invitationEmail);
   });
 };
 
-sendEmail(testMsg);
-
-export default sendEmail;
+export default inviteTeam;
