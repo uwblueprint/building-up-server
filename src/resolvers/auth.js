@@ -45,7 +45,7 @@ const authResolvers = {
           expiresIn: '7d',
         });
         const accessToken = jwt.sign({ userId: user.id }, ACCESS_TOKEN_SECRET, {
-          expiresIn: '15min',
+          expiresIn: '1h',
         });
 
         res.cookie('refresh-token', refreshToken);
