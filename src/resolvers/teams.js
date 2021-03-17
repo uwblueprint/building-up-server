@@ -1,34 +1,17 @@
 const retry = require('retry-as-promised');
 const { Sequelize } = require('sequelize');
-const sgMail = require('@sendgrid/mail');
 const { sequelize } = require('../models');
 const models = require('../models');
-// using Twilio SendGrid's v3 Node.js Library
-// https://github.com/sendgrid/sendgrid-nodejs
+const { sendEmail } = require('../services/sendEmail');
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
-// TO DO: Edit inivitation email subject, text, and html
-// Change teamId
+// TO DO: Edit inivitation email subject, html, and include team name (along with link)
 const createTeamInviteMessage = teamId => {
+  // convert teamId to teamName
   return {
     from: 'hongyichen@uwblueprint.org',
-    subject: `Invitation to join ${teamId}`,
-    text: 'hello hey whats up join this with this link',
-    html: '<strong> nice </strong>',
+    subject: `Invitation to Join Building Up`,
+    html: 'You have been invited to join <strong>Building Up</strong>. Please join using this link: ',
   };
-};
-
-// stick this into another file
-const sendEmail = msg => {
-  sgMail
-    .send(msg)
-    .then(() => {
-      console.log(`Email sent to ${msg.to}`);
-    })
-    .catch(error => {
-      console.error(error);
-    });
 };
 
 const sendTeamInvites = (emails, teamId) => {
