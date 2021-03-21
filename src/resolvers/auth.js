@@ -1,8 +1,7 @@
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const models = require('../models');
 
-const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = require('../config/config');
+const { createNewAccessToken, createNewRefreshToken } = require('../middleware/auth');
 
 const authResolvers = {
   Query: {
@@ -41,12 +40,8 @@ const authResolvers = {
           return null;
         }
 
-        const refreshToken = jwt.sign({ userId: user.id }, REFRESH_TOKEN_SECRET, {
-          expiresIn: '7d',
-        });
-        const accessToken = jwt.sign({ userId: user.id }, ACCESS_TOKEN_SECRET, {
-          expiresIn: '1h',
-        });
+        const refreshToken = createNewRefreshToken(user.id);
+        const accessToken = createNewAccessToken(user.id);
 
         res.cookie('refresh-token', refreshToken);
         res.cookie('access-token', accessToken);

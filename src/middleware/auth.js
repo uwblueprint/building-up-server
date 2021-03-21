@@ -5,6 +5,18 @@ const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = require('../config/config'
 const accessTokenSecret = ACCESS_TOKEN_SECRET;
 const refreshTokenSecret = REFRESH_TOKEN_SECRET;
 
+const createNewRefreshToken = userID => {
+  return jwt.sign({ userId: userID }, REFRESH_TOKEN_SECRET, {
+    expiresIn: '7d',
+  });
+};
+
+const createNewAccessToken = userID => {
+  return jwt.sign({ userId: userID }, ACCESS_TOKEN_SECRET, {
+    expiresIn: '1h',
+  });
+};
+
 const authenticateToken = (req, res, next) => {
   try {
     const accessToken = req.cookies['access-token'];
@@ -25,9 +37,8 @@ const authenticateToken = (req, res, next) => {
         }
 
         const refreshData = jwt.verify(refreshToken, refreshTokenSecret);
-        const newAccessToken = jwt.sign({ userId: refreshData.userId }, accessTokenSecret, {
-          expiresIn: '1h',
-        });
+        const newAccessToken = createNewAccessToken(refreshData.userId);
+
         res.cookie('access-token', newAccessToken);
         req.userId = refreshData.userId;
       } catch (error) {
@@ -42,3 +53,5 @@ const authenticateToken = (req, res, next) => {
 };
 
 exports.authenticateToken = authenticateToken;
+exports.createNewAccessToken = createNewAccessToken;
+exports.createNewRefreshToken = createNewRefreshToken;
