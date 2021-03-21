@@ -2,9 +2,6 @@ const jwt = require('jsonwebtoken');
 
 const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = require('../config/config');
 
-const accessTokenSecret = ACCESS_TOKEN_SECRET;
-const refreshTokenSecret = REFRESH_TOKEN_SECRET;
-
 const createNewRefreshToken = userID => {
   return jwt.sign({ userId: userID }, REFRESH_TOKEN_SECRET, {
     expiresIn: '7d',
@@ -24,7 +21,7 @@ const authenticateToken = (req, res, next) => {
       // eslint-disable-next-line no-console
       console.log('Missing access token');
     }
-    const accessData = jwt.verify(accessToken, accessTokenSecret);
+    const accessData = jwt.verify(accessToken, ACCESS_TOKEN_SECRET);
     req.userId = accessData.userId;
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
@@ -36,7 +33,7 @@ const authenticateToken = (req, res, next) => {
           return res.status(404).json({ error: 'Missing refresh token' });
         }
 
-        const refreshData = jwt.verify(refreshToken, refreshTokenSecret);
+        const refreshData = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
         const newAccessToken = createNewAccessToken(refreshData.userId);
 
         addAccessTokenCookie(res, newAccessToken);
