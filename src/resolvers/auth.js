@@ -1,8 +1,14 @@
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const models = require('../models');
 
-const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = require('../config/config');
+const {
+  createNewAccessToken,
+  createNewRefreshToken,
+  addAccessTokenCookie,
+  addRefreshTokenCookie,
+  clearAccessTokenCookie,
+  clearRefreshTokenCookie,
+} = require('../middleware/auth');
 
 const authResolvers = {
   Query: {
@@ -14,22 +20,30 @@ const authResolvers = {
     },
   },
   Mutation: {
-    async register(root, { firstName, lastName, email, password }) {
+    async register(root, { firstName, lastName, email, password }, { res }) {
       try {
         const salt = bcrypt.genSaltSync(10);
         const hashedPassword = bcrypt.hashSync(password, salt);
-        return models.User.create({
+        const user = await models.User.create({
           firstName,
           lastName,
           email,
           password: hashedPassword,
         });
+
+        const refreshToken = createNewRefreshToken(user.id);
+        const accessToken = createNewAccessToken(user.id);
+
+        addAccessTokenCookie(res, accessToken);
+        addRefreshTokenCookie(res, refreshToken);
+        return user;
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
+        return null;
       }
     },
-    async login(root, { email, password }, { req, res }) {
+    async login(root, { email, password }, { res }) {
       try {
         const user = await models.User.findOne({ where: { email } });
 
@@ -41,25 +55,22 @@ const authResolvers = {
           return null;
         }
 
-        const refreshToken = jwt.sign({ userId: user.id }, REFRESH_TOKEN_SECRET, {
-          expiresIn: '7d',
-        });
-        const accessToken = jwt.sign({ userId: user.id }, ACCESS_TOKEN_SECRET, {
-          expiresIn: '15min',
-        });
+        const refreshToken = createNewRefreshToken(user.id);
+        const accessToken = createNewAccessToken(user.id);
 
-        res.cookie('refresh-token', refreshToken);
-        res.cookie('access-token', accessToken);
+        addAccessTokenCookie(res, accessToken);
+        addRefreshTokenCookie(res, refreshToken);
         return user;
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
+        return null;
       }
     },
-    async logout(root, __, { req, res }) {
+    async logout(root, __, { res }) {
       try {
-        res.clearCookie('refresh-token');
-        res.clearCookie('access-token');
+        clearAccessTokenCookie(res);
+        clearRefreshTokenCookie(res);
         return true;
       } catch (error) {
         // eslint-disable-next-line no-console
