@@ -50,11 +50,19 @@ const authenticateToken = (req, res, next) => {
 };
 
 const addAccessTokenCookie = (res, accessToken) => {
-  res.cookie('access-token', accessToken);
+  res.cookie('access-token', accessToken, {
+    httpOnly: true,
+    sameSite: 'None',
+    secure: true,
+  });
 };
 
 const addRefreshTokenCookie = (res, refreshToken) => {
-  res.cookie('refresh-token', refreshToken);
+  res.cookie('refresh-token', refreshToken, {
+    httpOnly: true,
+    sameSite: 'None',
+    secure: true,
+  });
 };
 
 const clearAccessTokenCookie = res => {
