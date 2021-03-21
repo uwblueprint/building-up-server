@@ -14,12 +14,14 @@ const createTeamInviteMessage = teamId => {
   };
 };
 
-const sendTeamInvites = (emails, teamId) => {
+const sendTeamInvites = async (emails, teamId) => {
   const message = createTeamInviteMessage(teamId);
-  Promise.all(emails).then(email => {
-    const invitationEmail = { to: { email }, ...message };
-    sendEmail(invitationEmail);
-  });
+  return Promise.all(
+    emails.map(email => {
+      const invitationEmail = { to: { email }, ...message };
+      return sendEmail(invitationEmail);
+    }),
+  );
 };
 
 const teamsResolvers = {
@@ -106,7 +108,7 @@ const teamsResolvers = {
       await team.save();
       return team;
     },
-    async inviteTeam(root, { emails, teamId }) {
+    async inviteUsersToTeam(root, { emails, teamId }) {
       try {
         sendTeamInvites(emails, teamId);
         return true;
