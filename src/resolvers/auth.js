@@ -20,22 +20,30 @@ const authResolvers = {
     },
   },
   Mutation: {
-    async register(root, { firstName, lastName, email, password }) {
+    async register(root, { firstName, lastName, email, password }, { res }) {
       try {
         const salt = bcrypt.genSaltSync(10);
         const hashedPassword = bcrypt.hashSync(password, salt);
-        return models.User.create({
+        const user = await models.User.create({
           firstName,
           lastName,
           email,
           password: hashedPassword,
         });
+
+        const refreshToken = createNewRefreshToken(user.id);
+        const accessToken = createNewAccessToken(user.id);
+
+        addAccessTokenCookie(res, accessToken);
+        addRefreshTokenCookie(res, refreshToken);
+        return user;
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
+        return null;
       }
     },
-    async login(root, { email, password }, { req, res }) {
+    async login(root, { email, password }, { res }) {
       try {
         const user = await models.User.findOne({ where: { email } });
 
@@ -56,9 +64,10 @@ const authResolvers = {
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
+        return null;
       }
     },
-    async logout(root, __, { req, res }) {
+    async logout(root, __, { res }) {
       try {
         clearAccessTokenCookie(res);
         clearRefreshTokenCookie(res);
