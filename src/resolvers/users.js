@@ -37,12 +37,12 @@ const usersResolvers = {
         throw new Error('User Not Found');
       }
 
-      user.firstName = firstName ? firstName : user.firstName;
-      user.lastName = lastName ? lastName : user.lastName;
-      user.email = email ? email : user.email;
-      user.password = password ? password : user.password;
-      user.role = role ? role : user.role;
-      user.teamId = teamId ? teamId : user.teamId;
+      user.firstName = firstName || user.firstName;
+      user.lastName = lastName || user.lastName;
+      user.email = email || user.email;
+      user.password = password || user.password;
+      user.role = role || user.role;
+      user.teamId = teamId || user.teamId;
 
       await user.save();
       return user;

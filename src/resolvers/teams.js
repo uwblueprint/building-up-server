@@ -1,7 +1,28 @@
-const { sequelize } = require('../models');
-const models = require('../models');
 const retry = require('retry-as-promised');
 const { Sequelize } = require('sequelize');
+const { sequelize } = require('../models');
+const models = require('../models');
+const { sendEmail } = require('../services/sendEmail');
+
+// TO DO: Edit inivitation email subject, html, and include team name (along with link)
+const createTeamInviteMessage = teamId => {
+  // convert teamId to teamName
+  return {
+    from: 'hongyichen@uwblueprint.org',
+    subject: `Invitation to Join Building Up`,
+    html: 'You have been invited to join <strong>Building Up</strong>. Please join using this link: ',
+  };
+};
+
+const sendTeamInvites = async (emails, teamId) => {
+  const message = createTeamInviteMessage(teamId);
+  return Promise.all(
+    emails.map(email => {
+      const invitationEmail = { to: { email }, ...message };
+      return sendEmail(invitationEmail);
+    }),
+  );
+};
 
 const teamsResolvers = {
   Query: {
@@ -87,6 +108,15 @@ const teamsResolvers = {
 
       await team.save();
       return team;
+    },
+    async inviteUsersToTeam(root, { emails, teamId }) {
+      try {
+        await sendTeamInvites(emails, teamId);
+        return true;
+      } catch (error) {
+        console.log(error);
+      }
+      return false;
     },
   },
 };
