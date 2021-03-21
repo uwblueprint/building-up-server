@@ -110,7 +110,7 @@ const teamsResolvers = {
     },
     async inviteUsersToTeam(root, { emails, teamId }) {
       try {
-        sendTeamInvites(emails, teamId);
+        await sendTeamInvites(emails, teamId);
         return true;
       } catch (error) {
         console.log(error);
