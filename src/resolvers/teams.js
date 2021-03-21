@@ -20,6 +20,7 @@ const sendTeamInvites = (emails, teamId) => {
     const invitationEmail = { to: { email }, ...message };
     sendEmail(invitationEmail);
   });
+  // use Promise.all
 };
 
 const teamsResolvers = {
@@ -107,8 +108,13 @@ const teamsResolvers = {
       return team;
     },
     async inviteTeam(root, { emails, teamId }) {
-      sendTeamInvites(emails, teamId);
-      return true;
+      try {
+        sendTeamInvites(emails, teamId);
+        return true;
+      } catch (error) {
+        console.log(error);
+      }
+      return false;
     },
   },
 };
