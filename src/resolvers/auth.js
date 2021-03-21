@@ -1,7 +1,14 @@
 const bcrypt = require('bcryptjs');
 const models = require('../models');
 
-const { createNewAccessToken, createNewRefreshToken } = require('../middleware/auth');
+const {
+  createNewAccessToken,
+  createNewRefreshToken,
+  addAccessTokenCookie,
+  addRefreshTokenCookie,
+  clearAccessTokenCookie,
+  clearRefreshTokenCookie,
+} = require('../middleware/auth');
 
 const authResolvers = {
   Query: {
@@ -43,8 +50,8 @@ const authResolvers = {
         const refreshToken = createNewRefreshToken(user.id);
         const accessToken = createNewAccessToken(user.id);
 
-        res.cookie('refresh-token', refreshToken);
-        res.cookie('access-token', accessToken);
+        addAccessTokenCookie(res, accessToken);
+        addRefreshTokenCookie(res, refreshToken);
         return user;
       } catch (error) {
         // eslint-disable-next-line no-console
@@ -53,8 +60,8 @@ const authResolvers = {
     },
     async logout(root, __, { req, res }) {
       try {
-        res.clearCookie('refresh-token');
-        res.clearCookie('access-token');
+        clearAccessTokenCookie(res);
+        clearRefreshTokenCookie(res);
         return true;
       } catch (error) {
         // eslint-disable-next-line no-console

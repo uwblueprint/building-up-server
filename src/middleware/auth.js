@@ -39,7 +39,7 @@ const authenticateToken = (req, res, next) => {
         const refreshData = jwt.verify(refreshToken, refreshTokenSecret);
         const newAccessToken = createNewAccessToken(refreshData.userId);
 
-        res.cookie('access-token', newAccessToken);
+        addAccessTokenCookie(res, newAccessToken);
         req.userId = refreshData.userId;
       } catch (error) {
         console.log(error);
@@ -52,6 +52,26 @@ const authenticateToken = (req, res, next) => {
   next();
 };
 
+const addAccessTokenCookie = (res, accessToken) => {
+  res.cookie('access-token', accessToken);
+};
+
+const addRefreshTokenCookie = (res, refreshToken) => {
+  res.cookie('refresh-token', refreshToken);
+};
+
+const clearAccessTokenCookie = res => {
+  res.clearCookie('access-token');
+};
+
+const clearRefreshTokenCookie = res => {
+  res.clearCookie('refresh-token');
+};
+
 exports.authenticateToken = authenticateToken;
 exports.createNewAccessToken = createNewAccessToken;
 exports.createNewRefreshToken = createNewRefreshToken;
+exports.addAccessTokenCookie = addAccessTokenCookie;
+exports.addRefreshTokenCookie = addRefreshTokenCookie;
+exports.clearAccessTokenCookie = clearAccessTokenCookie;
+exports.clearRefreshTokenCookie = clearRefreshTokenCookie;
