@@ -16,11 +16,10 @@ const createTeamInviteMessage = teamId => {
 
 const sendTeamInvites = (emails, teamId) => {
   const message = createTeamInviteMessage(teamId);
-  emails.forEach(email => {
+  Promise.all(emails).then(email => {
     const invitationEmail = { to: { email }, ...message };
     sendEmail(invitationEmail);
   });
-  // use Promise.all
 };
 
 const teamsResolvers = {
