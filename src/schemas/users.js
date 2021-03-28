@@ -9,6 +9,8 @@ const usersTypeDefs = gql`
     password: String!
     role: String
     teamId: String
+    isVerified: Boolean!
+    verificationHash: String
   }
   extend type Query {
     getUsersForTeam(teamId: String!): [User]
@@ -27,6 +29,8 @@ const usersTypeDefs = gql`
     updateUser(id: ID!, firstName: String, lastName: String, email: String, password: String, role: String): User
     joinTeam(id: ID!, teamId: String): User
     leaveTeam(id: ID!): User
+    verifyAccount(id: ID!, hash: String!): User
+    sendVerificationEmail(id: ID!): Boolean
   }
 `;
 

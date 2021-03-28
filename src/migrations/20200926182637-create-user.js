@@ -26,6 +26,13 @@ module.exports = {
       teamId: {
         type: Sequelize.STRING,
       },
+      isVerified: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+      },
+      verificationHash: {
+        type: Sequelize.STRING,
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
