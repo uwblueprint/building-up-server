@@ -1,4 +1,11 @@
 const { Model, Sequelize } = require('sequelize');
+const en = require('nanoid-good/locale/en');
+const fr = require('nanoid-good/locale/fr');
+const customAlphabet = require('nanoid-good').customAlphabet(en, fr);
+
+// Based on documentation here https://github.com/ai/nanoid
+const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const generator = customAlphabet(alphabet, 32);
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
@@ -22,14 +29,14 @@ module.exports = (sequelize, DataTypes) => {
       firstName: {
         type: DataTypes.STRING,
         validate: {
-          notEmpty: true
-        }
+          notEmpty: true,
+        },
       },
       lastName: {
         type: DataTypes.STRING,
         validate: {
-          notEmpty: true
-        }
+          notEmpty: true,
+        },
       },
       email: {
         type: DataTypes.STRING,
@@ -37,21 +44,30 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
         validate: {
           notEmpty: true,
-          isEmail: true
-        }
+          isEmail: true,
+        },
       },
       password: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-          notEmpty: true
-        }
+          notEmpty: true,
+        },
       },
       role: {
         type: DataTypes.STRING,
       },
       teamId: {
         type: DataTypes.STRING,
+      },
+      isVerified: {
+        allowNull: false,
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      verificationHash: {
+        type: DataTypes.STRING,
+        defaultValue: generator,
       },
     },
     {
