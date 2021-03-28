@@ -56,7 +56,7 @@ const teamsResolvers = {
     },
     async getGlobalLeaderboard(root, args) {
       return models.Team.findAll({
-        attributes: ['name', 'amountRaised', 'itemsSold'],
+        attributes: ['id', 'name', 'organization', 'amountRaised', 'itemsSold'],
         order: [['itemsSold', 'DESC']],
       });
     },
