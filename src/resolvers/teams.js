@@ -3,14 +3,16 @@ const { Sequelize } = require('sequelize');
 const { sequelize } = require('../models');
 const models = require('../models');
 const { sendEmail } = require('../services/sendEmail');
+const { CLIENT_URL } = require('../config/config');
 
 // TO DO: Edit inivitation email subject, html, and include team name (along with link)
 const createTeamInviteMessage = teamId => {
+  const inviteUrl = `${CLIENT_URL}/invite/${teamId}`;
   // convert teamId to teamName
   return {
     from: 'hongyichen@uwblueprint.org',
-    subject: `Invitation to Join Building Up`,
-    html: 'You have been invited to join <strong>Building Up</strong>. Please join using this link: ',
+    subject: `Invitation to join a team for Raising the Roof's Toque Campaign Fundraiser`,
+    html: `You have been invited to join a team for Raising the Roof's Toque Campaign Fundraiser! Please join using this link: <a href="${inviteUrl}">${inviteUrl}</a>`,
   };
 };
 
