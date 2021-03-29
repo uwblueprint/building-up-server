@@ -17,9 +17,9 @@ docker-compose up
 If it's your first time running the project, you can set up the DB like so:
 
 - `docker ps` and find the container ID for the building up server
-- `docker exec <container_id> /bin/bash`
+- `docker exec -it <container_id> /bin/bash`
 - `cd src`
-- `sequelize db:seed:all`
+- `sequelize db:migrate`
 
 If you'd like to explore the DB with `psql`, here's how:
 
