@@ -3,7 +3,7 @@ const models = require('../models');
 
 const usersResolvers = {
   Query: {
-    async Users(root, { teamId }) {
+    async getUsersForTeam(root, { teamId }) {
       return models.User.findAll({
         where: {
           teamId,

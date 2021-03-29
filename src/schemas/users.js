@@ -11,7 +11,7 @@ const usersTypeDefs = gql`
     teamId: String
   }
   extend type Query {
-    Users(teamId: String!): [User]
+    getUsersForTeam(teamId: String!): [User]
     getUser(id: ID!): User
     getAllUsers: [User!]!
   }
