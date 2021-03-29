@@ -14,28 +14,26 @@ const createNewAccessToken = userID => {
   });
 };
 
+const cookieOptions = {
+  httpOnly: true,
+  sameSite: 'None',
+  secure: true,
+};
+
 const addAccessTokenCookie = (res, accessToken) => {
-  res.cookie('access-token', accessToken, {
-    httpOnly: true,
-    sameSite: 'None',
-    secure: true,
-  });
+  res.cookie('access-token', accessToken, cookieOptions);
 };
 
 const addRefreshTokenCookie = (res, refreshToken) => {
-  res.cookie('refresh-token', refreshToken, {
-    httpOnly: true,
-    sameSite: 'None',
-    secure: true,
-  });
+  res.cookie('refresh-token', refreshToken, cookieOptions);
 };
 
 const clearAccessTokenCookie = res => {
-  res.clearCookie('access-token');
+  res.clearCookie('access-token', cookieOptions);
 };
 
 const clearRefreshTokenCookie = res => {
-  res.clearCookie('refresh-token');
+  res.clearCookie('refresh-token', cookieOptions);
 };
 
 const authenticateToken = (req, res, next) => {
