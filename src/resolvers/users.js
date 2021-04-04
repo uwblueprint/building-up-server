@@ -96,7 +96,7 @@ const usersResolvers = {
 
     async sendVerificationEmail(root, { id }) {
       try {
-        const user = models.User.findByPk(id);
+        const user = await models.User.findByPk(id);
         if (user == null) {
           throw new UserInputError('User not found');
         }
@@ -106,9 +106,9 @@ const usersResolvers = {
         }
 
         const { email } = user;
-        const message = createVerificationEmail(id);
-        const invitationEmail = { to: { ...email }, ...message };
-        sendEmail(invitationEmail);
+        const message = createVerificationEmail(user.verificationHash);
+        const verificationEmail = { to: { email }, ...message };
+        sendEmail(verificationEmail);
         return true;
       } catch (error) {
         // eslint-disable-next-line no-console

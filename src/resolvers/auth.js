@@ -39,9 +39,9 @@ const authResolvers = {
         addAccessTokenCookie(res, accessToken);
         addRefreshTokenCookie(res, refreshToken);
 
-        const message = createVerificationEmail(user.id);
-        const invitationEmail = { to: { email }, ...message };
-        sendEmail(invitationEmail);
+        const message = createVerificationEmail(user.verificationHash);
+        const verificationEmail = { to: { email }, ...message };
+        sendEmail(verificationEmail);
 
         return user;
       } catch (error) {
