@@ -14,6 +14,12 @@ const createNewAccessToken = userID => {
   });
 };
 
+const createNewResetToken = userID => {
+  return jwt.sign({ userId: userID }, ACCESS_TOKEN_SECRET, {
+    expiresIn: '15m',
+  });
+};
+
 const cookieOptions = {
   httpOnly: true,
   sameSite: 'None',
@@ -73,9 +79,26 @@ const authenticateToken = (req, res, next) => {
   next();
 };
 
+const authenticateResetToken = (jwtToken) => {
+  try {
+    const accessToken = jwtToken;
+    if (!accessToken) {
+      // eslint-disable-next-line no-console
+      console.log('Missing access token');
+    }
+    const accessData = jwt.verify(accessToken, ACCESS_TOKEN_SECRET);
+    return accessData.userId;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
+  }
+}
+
 exports.authenticateToken = authenticateToken;
+exports.authenticateResetToken = authenticateResetToken;
 exports.createNewAccessToken = createNewAccessToken;
 exports.createNewRefreshToken = createNewRefreshToken;
+exports.createNewResetToken = createNewResetToken;
 exports.addAccessTokenCookie = addAccessTokenCookie;
 exports.addRefreshTokenCookie = addRefreshTokenCookie;
 exports.clearAccessTokenCookie = clearAccessTokenCookie;
