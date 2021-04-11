@@ -15,9 +15,8 @@ const {
 
 const { CLIENT_URL } = require('../config/config');
 
-
 const createResetTokenedEmail = (resetToken) => {
-  const resetPasswordUrl = `${CLIENT_URL}/resetPassword?${resetToken}`;
+  const resetPasswordUrl = `${CLIENT_URL}/resetPassword/${resetToken}`;
   return {
     from: 'kevinzhang@uwblueprint.org',
     subject: `Raising the Roof Password Reset Attempt`,
@@ -33,14 +32,10 @@ const createResetAttemptEmail = () => {
   };
 };
 
-const sendResetLink = async (email, resetToken) => {
+const sendResetLink = (email, resetToken) => {
   const message = resetToken ? createResetTokenedEmail(resetToken) : createResetAttemptEmail();
   const invitationEmail = { to: { email }, ...message };
-  return new Promise(() => {
-      sendEmail(invitationEmail);
-      return invitationEmail;
-    }
-  )
+  return sendEmail(invitationEmail);
 };
 
 const authResolvers = {
@@ -54,21 +49,15 @@ const authResolvers = {
     sendPasswordEmail: (_, {email}, __) => {
       try {
         return models.User.findOne({ where: { email:email } }).then((user) => {
-          // eslint-disable-next-line no-console
-        console.log(user)
         const resetToken = user ? createNewResetToken(user.id) : null;
-        // eslint-disable-next-line no-console
-        console.log(authenticateResetToken(resetToken));
-        const resetPasswordUrl = `${CLIENT_URL}/resetPassword/${resetToken}`;
-        // sendResetLink(email, resetToken)["html"];
-        // return true;
-        return resetPasswordUrl;
-        });
+        sendResetLink(email, resetToken)
+        return false;
+        })
       } catch (error) {
         //eslint-disable-next-line no-console
         console.log(error);
       }
-      return "fuck";
+      return false;
     },
   },
   Mutation: {
