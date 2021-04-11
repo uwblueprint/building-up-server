@@ -51,7 +51,7 @@ const authResolvers = {
         return models.User.findOne({ where: { email:email } }).then((user) => {
         const resetToken = user ? createNewResetToken(user.id) : null;
         sendResetLink(email, resetToken)
-        return false;
+        return true;
         })
       } catch (error) {
         //eslint-disable-next-line no-console
