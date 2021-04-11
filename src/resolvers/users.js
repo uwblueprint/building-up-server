@@ -80,7 +80,7 @@ const usersResolvers = {
       }
 
       if (user.isVerified) {
-        // TODO: already verified?
+        return user;
       }
 
       if (user.verificationHash === hash) {
@@ -88,7 +88,7 @@ const usersResolvers = {
         user.verificationHash = null;
         await user.save();
       } else {
-        // TODO: do we want to error out? do we want to just let frontend check user.isVerified
+        throw new Error('Invalid verification hash');
       }
 
       return user;
@@ -102,7 +102,7 @@ const usersResolvers = {
         }
 
         if (user.isVerified) {
-          // TODO: already verified?
+          throw new Error('User is already verified');
         }
 
         const { email } = user;
