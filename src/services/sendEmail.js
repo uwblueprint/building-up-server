@@ -10,7 +10,7 @@ sgMail.setApiKey(SENDGRID_API_KEY);
 // TO DO: Edit inivitation email subject, html, and generate email verification link
 const createVerificationEmail = hash => {
   if (hash == null) {
-    // TODO: hash not found?
+    throw new Error('Null Hash');
   }
 
   const inviteUrl = `${CLIENT_URL}/verify/${hash}`;
