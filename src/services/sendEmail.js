@@ -13,7 +13,7 @@ const createVerificationEmail = hash => {
     // TODO: hash not found?
   }
 
-  const inviteUrl = `${CLIENT_URL}/verification/${hash}`;
+  const inviteUrl = `${CLIENT_URL}/verify/${hash}`;
 
   return {
     from: 'hongyichen@uwblueprint.org',
