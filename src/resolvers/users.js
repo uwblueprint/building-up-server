@@ -87,8 +87,6 @@ const usersResolvers = {
         user.isVerified = true;
         user.verificationHash = null;
         await user.save();
-      } else {
-        throw new Error('Invalid verification hash');
       }
 
       return user;
