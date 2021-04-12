@@ -17,8 +17,8 @@ const createVerificationEmail = hash => {
 
   return {
     from: 'hongyichen@uwblueprint.org',
-    subject: `Verify Email for Building Up`,
-    html: `Thank you for signing up with <strong>Building Up</strong>. Please verify your email using this link: <a href="${inviteUrl}">${inviteUrl}</a>`,
+    subject: `Verify your email for Raising the Roof's Toque Campaign`,
+    html: `Thank you for signing up! Please verify your email with this link: <a href="${inviteUrl}">${inviteUrl}</a>`,
   };
 };
 
