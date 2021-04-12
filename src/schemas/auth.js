@@ -3,7 +3,7 @@ const { gql } = require('apollo-server-express');
 const authTypeDefs = gql`
   extend type Query {
     getActiveUser: User
-    sendPasswordEmail(email:String!): Boolean
+    sendResetPasswordEmail(email:String!): Boolean
   }
 
   extend type Mutation {

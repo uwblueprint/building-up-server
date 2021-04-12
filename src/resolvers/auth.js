@@ -3,10 +3,10 @@ const models = require('../models');
 const { sendEmail } = require('../services/sendEmail');
 
 const {
-  authenticateResetToken,
+  authenticateResetPasswordToken,
   createNewAccessToken,
   createNewRefreshToken,
-  createNewResetToken,
+  createNewPasswordResetToken,
   addAccessTokenCookie,
   addRefreshTokenCookie,
   clearAccessTokenCookie,
@@ -15,12 +15,13 @@ const {
 
 const { CLIENT_URL } = require('../config/config');
 
-const createResetTokenedEmail = (resetToken) => {
+const createResetPasswordEmail = (resetToken) => {
   const resetPasswordUrl = `${CLIENT_URL}/resetPassword/${resetToken}`;
+  console.log(resetPasswordUrl)
   return {
     from: 'kevinzhang@uwblueprint.org',
     subject: `Raising the Roof Password Reset Attempt`,
-    html: `Reset your password here: ${resetPasswordUrl}`,
+    html: `Reset your password <a href="${resetPasswordUrl}"> here </a>`,
   };
 };
 
@@ -32,8 +33,8 @@ const createResetAttemptEmail = () => {
   };
 };
 
-const sendResetLink = (email, resetToken) => {
-  const message = resetToken ? createResetTokenedEmail(resetToken) : createResetAttemptEmail();
+const sendResetPasswordLink = (email, resetToken) => {
+  const message = resetToken ? createResetPasswordEmail(resetToken) : createResetAttemptEmail();
   const invitationEmail = { to: { email }, ...message };
   return sendEmail(invitationEmail);
 };
@@ -46,11 +47,11 @@ const authResolvers = {
       }
       return models.User.findByPk(req.userId);
     },
-    sendPasswordEmail: (_, {email}, __) => {
+    sendResetPasswordEmail: (_, {email}, __) => {
       try {
         return models.User.findOne({ where: { email:email } }).then((user) => {
-        const resetToken = user ? createNewResetToken(user.id) : null;
-        sendResetLink(email, resetToken)
+        const resetToken = user ? createNewPasswordResetToken(user.id) : null;
+        sendResetPasswordLink(email, resetToken)
         return true;
         })
       } catch (error) {
@@ -121,7 +122,7 @@ const authResolvers = {
     },
     async resetPassword(root, {jwtToken, password}, ___){
       try{
-        const id = authenticateResetToken(jwtToken);
+        const id = authenticateResetPasswordToken(jwtToken);
         return models.User.findByPk(id).then((user) => {
           const salt = bcrypt.genSaltSync(10);
           const hashedPassword = bcrypt.hashSync(password, salt);
