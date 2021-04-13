@@ -12,9 +12,13 @@ module.exports = {
       type: Sequelize.STRING,
       defaultValue: generator,
     });
+
+    return queryInterface.bulkUpdate('Users', {
+      isVerified: true,
+    });
   },
 
-  down: async (queryInterface, Sequelize) => {
+  down: async queryInterface => {
     await queryInterface.removeColumn('Users', 'isVerified');
     await queryInterface.removeColumn('Users', 'verificationHash');
   },
