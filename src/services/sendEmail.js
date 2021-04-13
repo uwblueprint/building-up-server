@@ -7,7 +7,6 @@ const models = require('../models');
 
 sgMail.setApiKey(SENDGRID_API_KEY);
 
-// TO DO: Edit inivitation email subject, html, and generate email verification link
 const createVerificationEmail = hash => {
   if (hash == null) {
     throw new Error('Null Hash');
