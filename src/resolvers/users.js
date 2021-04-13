@@ -1,5 +1,6 @@
 const { UserInputError } = require('apollo-server-errors');
 const models = require('../models');
+const { createVerificationEmail, sendEmail } = require('../services/sendEmail');
 
 const usersResolvers = {
   Query: {
@@ -70,6 +71,48 @@ const usersResolvers = {
       user.teamId = null;
       await user.save();
       return user;
+    },
+
+    async verifyAccount(root, { id, hash }) {
+      const user = await models.User.findByPk(id);
+      if (user == null) {
+        throw new UserInputError('User not found');
+      }
+
+      if (user.isVerified) {
+        return user;
+      }
+
+      if (user.verificationHash === hash) {
+        user.isVerified = true;
+        user.verificationHash = null;
+        await user.save();
+      }
+
+      return user;
+    },
+
+    async sendVerificationEmail(root, { id }) {
+      try {
+        const user = await models.User.findByPk(id);
+        if (user == null) {
+          throw new UserInputError('User not found');
+        }
+
+        if (user.isVerified) {
+          throw new Error('User is already verified');
+        }
+
+        const { email } = user;
+        const message = createVerificationEmail(user.verificationHash);
+        const verificationEmail = { to: { email }, ...message };
+        sendEmail(verificationEmail);
+        return true;
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
+      return false;
     },
   },
 };

@@ -1,4 +1,5 @@
 const { Model, Sequelize } = require('sequelize');
+const { generator } = require('../services/customAlphabet');
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
@@ -22,14 +23,14 @@ module.exports = (sequelize, DataTypes) => {
       firstName: {
         type: DataTypes.STRING,
         validate: {
-          notEmpty: true
-        }
+          notEmpty: true,
+        },
       },
       lastName: {
         type: DataTypes.STRING,
         validate: {
-          notEmpty: true
-        }
+          notEmpty: true,
+        },
       },
       email: {
         type: DataTypes.STRING,
@@ -37,21 +38,30 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
         validate: {
           notEmpty: true,
-          isEmail: true
-        }
+          isEmail: true,
+        },
       },
       password: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-          notEmpty: true
-        }
+          notEmpty: true,
+        },
       },
       role: {
         type: DataTypes.STRING,
       },
       teamId: {
         type: DataTypes.STRING,
+      },
+      isVerified: {
+        allowNull: false,
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      verificationHash: {
+        type: DataTypes.STRING,
+        defaultValue: generator,
       },
     },
     {

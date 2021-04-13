@@ -10,6 +10,8 @@ const {
   clearRefreshTokenCookie,
 } = require('../middleware/auth');
 
+const { createVerificationEmail, sendEmail } = require('../services/sendEmail');
+
 const authResolvers = {
   Query: {
     getActiveUser: (_, __, { req }) => {
@@ -36,6 +38,17 @@ const authResolvers = {
 
         addAccessTokenCookie(res, accessToken);
         addRefreshTokenCookie(res, refreshToken);
+
+        if (email.includes('@test.com')) {
+          user.isVerified = true;
+          user.verificationHash = null;
+          await user.save();
+        } else {
+          const message = createVerificationEmail(user.verificationHash);
+          const verificationEmail = { to: { email }, ...message };
+          sendEmail(verificationEmail);
+        }
+
         return user;
       } catch (error) {
         // eslint-disable-next-line no-console
