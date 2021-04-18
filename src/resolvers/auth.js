@@ -17,7 +17,6 @@ const { CLIENT_URL } = require('../config/config');
 
 const createResetPasswordEmail = (resetToken) => {
   const resetPasswordUrl = `${CLIENT_URL}/resetPassword/${resetToken}`;
-  console.log(resetPasswordUrl)
   return {
     from: 'kevinzhang@uwblueprint.org',
     subject: `Raising the Roof Password Reset Attempt`,
@@ -35,8 +34,8 @@ const createResetAttemptEmail = () => {
 
 const sendResetPasswordLink = (email, resetToken) => {
   const message = resetToken ? createResetPasswordEmail(resetToken) : createResetAttemptEmail();
-  const invitationEmail = { to: { email }, ...message };
-  return sendEmail(invitationEmail);
+  const resetEmail = { to: { email }, ...message };
+  return sendEmail(resetEmail);
 };
 
 const authResolvers = {
