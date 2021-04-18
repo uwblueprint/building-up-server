@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const models = require('../models');
-const { sendEmail } = require('../services/sendEmail');
+const { createVerificationEmail, sendEmail } = require('../services/sendEmail');
 
 const {
   authenticateResetPasswordToken,
@@ -15,7 +15,7 @@ const {
 
 const { CLIENT_URL } = require('../config/config');
 
-const createResetPasswordEmail = (resetToken) => {
+const createResetPasswordEmail = resetToken => {
   const resetPasswordUrl = `${CLIENT_URL}/resetPassword/${resetToken}`;
   return {
     from: 'kevinzhang@uwblueprint.org',
@@ -46,15 +46,15 @@ const authResolvers = {
       }
       return models.User.findByPk(req.userId);
     },
-    sendResetPasswordEmail: (_, {email}, __) => {
+    sendResetPasswordEmail: (_, { email }) => {
       try {
-        return models.User.findOne({ where: { email:email } }).then((user) => {
-        const resetToken = user ? createNewPasswordResetToken(user.id) : null;
-        sendResetPasswordLink(email, resetToken)
-        return true;
-        })
+        return models.User.findOne({ where: { email } }).then(user => {
+          const resetToken = user ? createNewPasswordResetToken(user.id) : null;
+          sendResetPasswordLink(email, resetToken);
+          return true;
+        });
       } catch (error) {
-        //eslint-disable-next-line no-console
+        // eslint-disable-next-line no-console
         console.log(error);
       }
       return false;
@@ -77,6 +77,17 @@ const authResolvers = {
 
         addAccessTokenCookie(res, accessToken);
         addRefreshTokenCookie(res, refreshToken);
+
+        if (email.includes('@test.com')) {
+          user.isVerified = true;
+          user.verificationHash = null;
+          await user.save();
+        } else {
+          const message = createVerificationEmail(user.verificationHash);
+          const verificationEmail = { to: { email }, ...message };
+          sendEmail(verificationEmail);
+        }
+
         return user;
       } catch (error) {
         // eslint-disable-next-line no-console
@@ -119,23 +130,23 @@ const authResolvers = {
       }
       return false;
     },
-    async resetPassword(root, {jwtToken, password}, ___){
-      try{
+    async resetPassword(root, { jwtToken, password }) {
+      try {
         const id = authenticateResetPasswordToken(jwtToken);
-        return models.User.findByPk(id).then((user) => {
-          const salt = bcrypt.genSaltSync(10);
-          const hashedPassword = bcrypt.hashSync(password, salt);
-          user.password = hashedPassword;
-          return user.save().then(() => {
-            return true;
-          });
-        });
-      }catch(error){
+        const user = await models.User.findByPk(id);
+
+        const salt = bcrypt.genSaltSync(10);
+        const hashedPassword = bcrypt.hashSync(password, salt);
+        user.password = hashedPassword;
+
+        await user.save();
+        return true;
+      } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
         return false;
       }
-    }
+    },
   },
 };
 
