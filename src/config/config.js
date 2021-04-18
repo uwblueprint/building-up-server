@@ -30,4 +30,5 @@ module.exports = {
   RESET_PASSWORD_TOKEN_SECRET: process.env.RESET_PASSWORD_TOKEN_SECRET,
   CLIENT_URL: process.env.CLIENT_URL,
   SENDGRID_API_KEY: process.env.SENDGRID_API_KEY || '',
+  SHOPIFY_KEY: process.env.SHOPIFY_KEY,
 };

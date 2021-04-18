@@ -12,21 +12,10 @@ const noteAttributesEnum = {
   total number of items sold, including if there are refunds or updates
 */
 function computeQuantity(event) {
-  const { lineItems, refunds } = event;
+  const { line_items: lineItems, refunds } = event;
 
-  let totalQuantity = 0;
-  let refundQuantity = 0;
-
-  lineItems.forEach(item => {
-    totalQuantity += item.quantity;
-  });
-
-  if (refunds !== undefined || refunds.length !== 0) {
-    // go through each refund object
-    refunds.forEach(item => {
-      refundQuantity += item.quantity;
-    });
-  }
+  const totalQuantity = lineItems.reduce((total, item) => total + item.quantity, 0);
+  const refundQuantity = refunds.reduce((total, item) => total + item.quantity, 0);
 
   return totalQuantity - refundQuantity;
 }
@@ -97,7 +86,7 @@ const captureOrderWebhook = async (req, res) => {
   // subtotal_price - includes any discounts, excludes tax
   // date of purchase from Shopify request data.
 
-  const { order_number, note_attributes, subtotal_price, created_at } = event;
+  const { order_number, note_attributes, subtotal_price, created_at, total_tip_received } = event;
 
   // create noteAttributesMap hashmap.
   const noteAttributesMap = new Map();
@@ -113,8 +102,8 @@ const captureOrderWebhook = async (req, res) => {
     }
   }
 
-  // quantity of items sold.
   const numberOfItems = computeQuantity(event);
+  const totalPrice = parseFloat(subtotal_price) + parseFloat(total_tip_received);
 
   if (!error) {
     try {
@@ -122,12 +111,12 @@ const captureOrderWebhook = async (req, res) => {
         orderNumber: order_number,
         userId: noteAttributesMap.get(noteAttributesEnum.userId),
         teamId: noteAttributesMap.get(noteAttributesEnum.teamId),
-        price: subtotal_price,
+        price: totalPrice,
         numberOfItems,
         purchaseDate: created_at,
       });
 
-      incrementTeamSales(noteAttributesMap.get(noteAttributesEnum.teamId), numberOfItems);
+      incrementTeamSales(noteAttributesMap.get(noteAttributesEnum.teamId), numberOfItems, totalPrice);
 
       // return 200 ok response
       res.json({
