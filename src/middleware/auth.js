@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = require('../config/config');
+const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET, RESET_PASSWORD_TOKEN_SECRET} = require('../config/config');
 
 const createNewRefreshToken = userID => {
   return jwt.sign({ userId: userID }, REFRESH_TOKEN_SECRET, {
@@ -11,6 +11,12 @@ const createNewRefreshToken = userID => {
 const createNewAccessToken = userID => {
   return jwt.sign({ userId: userID }, ACCESS_TOKEN_SECRET, {
     expiresIn: '1h',
+  });
+};
+
+const createNewPasswordResetToken = userID => {
+  return jwt.sign({ userId: userID }, RESET_PASSWORD_TOKEN_SECRET, {
+    expiresIn: '15m',
   });
 };
 
@@ -73,9 +79,26 @@ const authenticateToken = (req, res, next) => {
   next();
 };
 
+const authenticateResetPasswordToken = (jwtToken) => {
+  try {
+    const accessToken = jwtToken;
+    if (!accessToken) {
+      // eslint-disable-next-line no-console
+      console.log('Missing access token');
+    }
+    const accessData = jwt.verify(accessToken, RESET_PASSWORD_TOKEN_SECRET);
+    return accessData.userId;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
+  }
+}
+
 exports.authenticateToken = authenticateToken;
+exports.authenticateResetPasswordToken = authenticateResetPasswordToken;
 exports.createNewAccessToken = createNewAccessToken;
 exports.createNewRefreshToken = createNewRefreshToken;
+exports.createNewPasswordResetToken = createNewPasswordResetToken;
 exports.addAccessTokenCookie = addAccessTokenCookie;
 exports.addRefreshTokenCookie = addRefreshTokenCookie;
 exports.clearAccessTokenCookie = clearAccessTokenCookie;

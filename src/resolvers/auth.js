@@ -1,16 +1,42 @@
 const bcrypt = require('bcryptjs');
 const models = require('../models');
+const { createVerificationEmail, sendEmail } = require('../services/sendEmail');
 
 const {
+  authenticateResetPasswordToken,
   createNewAccessToken,
   createNewRefreshToken,
+  createNewPasswordResetToken,
   addAccessTokenCookie,
   addRefreshTokenCookie,
   clearAccessTokenCookie,
   clearRefreshTokenCookie,
 } = require('../middleware/auth');
 
-const { createVerificationEmail, sendEmail } = require('../services/sendEmail');
+const { CLIENT_URL } = require('../config/config');
+
+const createResetPasswordEmail = resetToken => {
+  const resetPasswordUrl = `${CLIENT_URL}/resetPassword/${resetToken}`;
+  return {
+    from: 'kevinzhang@uwblueprint.org',
+    subject: `Raising the Roof Password Reset Attempt`,
+    html: `Reset your password <a href="${resetPasswordUrl}"> here </a>`,
+  };
+};
+
+const createResetAttemptEmail = () => {
+  return {
+    from: 'kevinzhang@uwblueprint.org',
+    subject: `Raising the Roof Password Reset Attempt`,
+    html: `Someone recently attempted to reset your password at ${CLIENT_URL}, however, you do not have an account with us`,
+  };
+};
+
+const sendResetPasswordLink = (email, resetToken) => {
+  const message = resetToken ? createResetPasswordEmail(resetToken) : createResetAttemptEmail();
+  const resetEmail = { to: { email }, ...message };
+  return sendEmail(resetEmail);
+};
 
 const authResolvers = {
   Query: {
@@ -19,6 +45,19 @@ const authResolvers = {
         return null;
       }
       return models.User.findByPk(req.userId);
+    },
+    sendResetPasswordEmail: (_, { email }) => {
+      try {
+        return models.User.findOne({ where: { email } }).then(user => {
+          const resetToken = user ? createNewPasswordResetToken(user.id) : null;
+          sendResetPasswordLink(email, resetToken);
+          return true;
+        });
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
+      return false;
     },
   },
   Mutation: {
@@ -90,6 +129,23 @@ const authResolvers = {
         console.log(error);
       }
       return false;
+    },
+    async resetPassword(root, { jwtToken, password }) {
+      try {
+        const id = authenticateResetPasswordToken(jwtToken);
+        const user = await models.User.findByPk(id);
+
+        const salt = bcrypt.genSaltSync(10);
+        const hashedPassword = bcrypt.hashSync(password, salt);
+        user.password = hashedPassword;
+
+        await user.save();
+        return true;
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+        return false;
+      }
     },
   },
 };
