@@ -1,9 +1,8 @@
 const models = require('../models');
 const { findByOrderNumber } = require('./order');
-const { incrementTeamSales } = require('./team');
+const { incrementTeamSales, decrementTeamSales } = require('./team');
 
 const noteAttributesEnum = {
-  userId: 0,
   teamId: 1,
 };
 
@@ -35,7 +34,7 @@ function computeUpdatedPrice(event) {
     });
   }
 
-  return parseFloat(event.subtotal_price) - refund;
+  return parseFloat(event.subtotal_price) + parseFloat(event.total_tip_received) - refund;
 }
 
 /*
@@ -47,11 +46,7 @@ function orderChanges(incomingOrder, existingOrder) {
   // this function will return an object of updated values relevant to our DB table
   const changelog = {};
   const { note_attributes } = incomingOrder;
-  const { userId, teamId, price, numberOfItems } = existingOrder;
-
-  if (note_attributes[noteAttributesEnum.userId].value !== userId) {
-    changelog.userId = note_attributes[noteAttributesEnum.userId].value;
-  }
+  const { teamId, price, numberOfItems } = existingOrder;
 
   if (note_attributes[noteAttributesEnum.teamId].value !== teamId) {
     changelog.teamId = note_attributes[noteAttributesEnum.teamId].value;
@@ -65,6 +60,10 @@ function orderChanges(incomingOrder, existingOrder) {
   const newQuantity = computeQuantity(incomingOrder);
   if (newQuantity !== numberOfItems) {
     changelog.numberOfItems = newQuantity;
+  }
+
+  if (incomingOrder.donationAmount !== existingOrder.donationAmount) {
+    changelog.donationAmount = incomingOrder.donationAmount;
   }
 
   return changelog;
@@ -109,9 +108,9 @@ const captureOrderWebhook = async (req, res) => {
     try {
       const item = await models.Order.create({
         orderNumber: order_number,
-        userId: noteAttributesMap.get(noteAttributesEnum.userId),
         teamId: noteAttributesMap.get(noteAttributesEnum.teamId),
         price: totalPrice,
+        donationAmount: total_tip_received,
         numberOfItems,
         purchaseDate: created_at,
       });
@@ -149,7 +148,7 @@ const cancelOrderWebhook = async (req, res) => {
   try {
     const { order_number } = event;
     const row = await findByOrderNumber(order_number);
-    const { teamId, numberOfItems } = row;
+    const { teamId, numberOfItems, price } = row;
 
     if (row !== null) {
       const rowsDeleted = await models.Order.destroy({
@@ -159,7 +158,7 @@ const cancelOrderWebhook = async (req, res) => {
       });
 
       if (rowsDeleted === 1) {
-        decrementTeamSales(teamId, numberOfItems);
+        decrementTeamSales(teamId, numberOfItems, price);
 
         res.json({
           Message: 'Success: payment record was deleted',
@@ -205,7 +204,7 @@ const updateOrderWebhook = async (req, res) => {
   try {
     const { order_number, note_attributes } = event;
     const existingOrder = await findByOrderNumber(order_number);
-    const { numberOfItems } = existingOrder;
+    const { numberOfItems, price } = existingOrder;
 
     if (existingOrder != null) {
       // we can cross reference the incoming changes with existing data in our DB.
@@ -225,6 +224,7 @@ const updateOrderWebhook = async (req, res) => {
             incrementTeamSales(
               note_attributes[noteAttributesEnum.teamId].value,
               changelog.numberOfItems - numberOfItems,
+              changelog.price - price,
             );
           }
 

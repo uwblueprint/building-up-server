@@ -35,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: false,
       },
+      donationAmount: {
+        type: DataTypes.DECIMAL(20, 2),
+        allowNull: false,
+      },
     },
     {
       sequelize,
