@@ -9,7 +9,11 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      User.belongsTo(models.Team);
+      User.belongsTo(models.Team, {
+        foreignKey: {
+          name: 'teamId',
+        },
+      });
       User.hasMany(models.Order);
     }
   }
@@ -49,9 +53,6 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       role: {
-        type: DataTypes.STRING,
-      },
-      teamId: {
         type: DataTypes.STRING,
       },
       isVerified: {

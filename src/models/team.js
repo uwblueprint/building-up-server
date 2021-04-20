@@ -25,7 +25,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         primaryKey: true,
-        unique: true,
         defaultValue: generator,
       },
       name: {
