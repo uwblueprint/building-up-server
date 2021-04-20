@@ -2,7 +2,6 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('Orders', {
       id: {
-        allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
@@ -14,6 +13,13 @@ module.exports = {
       },
       userId: {
         type: Sequelize.UUID,
+        references: {
+          model: {
+            tableName: 'Users',
+            schema: 'public',
+          },
+          key: 'id',
+        },
         allowNull: false,
       },
       teamId: {

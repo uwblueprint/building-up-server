@@ -4,7 +4,6 @@ module.exports = {
       id: {
         allowNull: false,
         primaryKey: true,
-        unique: true,
         type: Sequelize.STRING,
       },
       name: {

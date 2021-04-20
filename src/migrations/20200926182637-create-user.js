@@ -25,13 +25,14 @@ module.exports = {
       },
       teamId: {
         type: Sequelize.STRING,
-      },
-      isVerified: {
-        type: Sequelize.BOOLEAN,
+        references: {
+          model: {
+            tableName: 'Teams',
+            schema: 'public',
+          },
+          key: 'id',
+        },
         allowNull: false,
-      },
-      verificationHash: {
-        type: Sequelize.STRING,
       },
       createdAt: {
         type: Sequelize.DATE,
