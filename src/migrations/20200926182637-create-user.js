@@ -2,7 +2,6 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('Users', {
       id: {
-        allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
       },
@@ -25,13 +24,11 @@ module.exports = {
       },
       teamId: {
         type: Sequelize.STRING,
-      },
-      isVerified: {
-        type: Sequelize.BOOLEAN,
+        references: {
+          model: 'Teams',
+          key: 'id',
+        },
         allowNull: false,
-      },
-      verificationHash: {
-        type: Sequelize.STRING,
       },
       createdAt: {
         type: Sequelize.DATE,
