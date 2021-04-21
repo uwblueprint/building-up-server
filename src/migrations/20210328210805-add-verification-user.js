@@ -31,7 +31,7 @@ module.exports = {
   down: async queryInterface => {
     return queryInterface.sequelize.transaction(async t => {
       await queryInterface.removeColumn('Users', 'isVerified', { transaction: t });
-      queryInterface.removeColumn('Users', 'verificationHash', { transaction: t });
+      queryInterface.removeColumn('Users', 'verificationHash');
     });
   },
 };

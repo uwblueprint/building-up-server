@@ -14,21 +14,14 @@ module.exports = (sequelize, DataTypes) => {
       });
       Order.belongsTo(models.Team, {
         foreignKey: 'teamId',
-        allowNull: false,
       });
     }
   }
   Order.init(
     {
-      id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-      },
       orderNumber: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        unique: true,
+        primaryKey: true,
       },
       price: {
         type: DataTypes.DECIMAL(20, 2),

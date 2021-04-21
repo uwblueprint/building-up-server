@@ -23,7 +23,6 @@ module.exports = (sequelize, DataTypes) => {
     {
       id: {
         type: DataTypes.STRING,
-        allowNull: false,
         primaryKey: true,
         defaultValue: generator,
       },
