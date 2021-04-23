@@ -34,7 +34,7 @@ app.use(authenticateToken);
 server.applyMiddleware({ app, cors: corsOptions });
 
 models.sequelize.authenticate();
-models.sequelize.sync();
+// models.sequelize.sync();
 
 app.listen({ port }, () => {
   // eslint-disable-next-line no-console
