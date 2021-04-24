@@ -11,5 +11,11 @@ const ordersTypeDefs = gql`
     createdAt: String!
     updatedAt: String!
   }
+  extend type Query {
+    getOrder(id: ID!): Orders
+    getOrderByOrderNumber(orderNumber: Int!): Orders
+    getAllOrders: [Orders!]!
+  }
 `;
+
 exports.ordersTypeDefs = ordersTypeDefs;

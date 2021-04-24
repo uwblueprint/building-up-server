@@ -14,6 +14,7 @@ const {
   paymentsResolvers,
   authResolvers,
   usersResolvers,
+  ordersResolvers,
 } = require('./resolvers');
 
 // Base query schema, other queries extend this
@@ -41,7 +42,14 @@ const schema = makeExecutableSchema({
     paymentsTypeDefs,
     usersTypeDefs,
   ],
-  resolvers: merge(helloWorldResolvers, teamsResolvers, authResolvers, paymentsResolvers, usersResolvers),
+  resolvers: merge(
+    helloWorldResolvers,
+    teamsResolvers,
+    authResolvers,
+    paymentsResolvers,
+    usersResolvers,
+    ordersResolvers,
+  ),
 });
 
 const rootResolveFunction = (parent, args, context, info) => {
