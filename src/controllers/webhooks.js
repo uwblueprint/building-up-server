@@ -160,9 +160,9 @@ const cancelOrderWebhook = async (req, res) => {
   try {
     const id = event.id.toString();
     const row = await findByOrderId(id);
-    const { teamId, numberOfItems, price, donationAmount } = row;
 
     if (row !== null) {
+      const { teamId, numberOfItems, price, donationAmount } = row;
       const rowsDeleted = await models.Order.destroy({
         where: {
           id,
