@@ -10,7 +10,6 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       User.belongsTo(models.Team, { foreignKey: 'teamId' });
-      User.hasMany(models.Order);
     }
   }
   User.init(

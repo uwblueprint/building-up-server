@@ -40,11 +40,11 @@ const teamsResolvers = {
     },
     async latestOrders(root, { id, amountPrev }) {
       return models.Order.findAll({
-        attributes: ['orderNumber', 'price', 'purchaseDate'],
+        attributes: ['orderNumber', 'price', 'donationAmount', 'createdAt'],
         where: {
           teamId: id,
         },
-        order: [['purchaseDate', 'DESC']],
+        order: [['createdAt', 'DESC']],
         limit: amountPrev,
       });
     },

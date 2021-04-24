@@ -2,13 +2,14 @@ const { gql } = require('apollo-server-express');
 
 const ordersTypeDefs = gql`
   type Orders {
+    id: ID!
     orderNumber: Int!
-    userId: Int!
-    teamId: Int!
-    teamName: String!
-    price: Int!
+    teamId: String
+    price: Float!
+    donationAmount: Float!
     numberOfItems: Int!
-    purchaseDate: String!
+    createdAt: String!
+    updatedAt: String!
   }
 `;
 exports.ordersTypeDefs = ordersTypeDefs;
