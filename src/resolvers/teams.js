@@ -102,11 +102,11 @@ const teamsResolvers = {
       if (team === null) {
         throw new Error('Team Not Found');
       }
-      team.name = name;
-      team.organization = organization;
-      team.amountRaised = amountRaised;
-      team.itemsSold = itemsSold;
-      team.isArchived = isArchived;
+      team.name = name || team.name;
+      team.organization = organization || team.organization;
+      team.amountRaised = amountRaised || team.amountRaised;
+      team.itemsSold = itemsSold || team.itemsSold;
+      team.isArchived = isArchived || team.isArchived;
 
       await team.save();
       return team;
