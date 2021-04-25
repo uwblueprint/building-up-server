@@ -106,7 +106,7 @@ const teamsResolvers = {
         return team[1][0].dataValues;
       }
       catch{
-        throw new Error('No User Found');
+        throw new Error('Team Not Found');
       }
     },
 
