@@ -16,7 +16,6 @@ const TEAM_ID_KEY = 'teamId';
 function getTeamIdFromNoteAttributes(noteAttributes) {
   const filtered = noteAttributes.filter(val => typeof val === 'object' && val.key && val.key === TEAM_ID_KEY);
   const teamId = filtered[0] ? filtered[0].value : null;
-  console.log('teamId:', teamId);
 
   return teamId;
 }
@@ -58,7 +57,6 @@ function computeUpdatedPrice(event) {
   which fields we need to update in our DB.
 */
 function orderChanges(incomingOrder, existingOrder) {
-  console.log('incomingOrder:', incomingOrder);
   // this function will return an object of updated values relevant to our DB table
   const { note_attributes: noteAttributes, updated_at: updatedAt, donation_amount: donationAmount } = incomingOrder;
   const { teamId } = existingOrder;
@@ -84,7 +82,6 @@ const captureOrderWebhook = async (req, res) => {
 
   try {
     event = JSON.parse(req.body);
-    console.log('event:', event);
   } catch (err) {
     error = true;
     // eslint-disable-next-line no-console
@@ -151,7 +148,6 @@ const cancelOrderWebhook = async (req, res) => {
 
   try {
     event = JSON.parse(req.body);
-    console.log('event:', event);
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error(`Error: ${err.message}`);

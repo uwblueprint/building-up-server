@@ -5,12 +5,11 @@ const models = require('../models');
 const { sendEmail } = require('../services/sendEmail');
 const { CLIENT_URL } = require('../config/config');
 
-// TO DO: Edit inivitation email subject, html, and include team name (along with link)
 const createTeamInviteMessage = teamId => {
   const inviteUrl = `${CLIENT_URL}/invite/${teamId}`;
   // convert teamId to teamName
   return {
-    from: 'hongyichen@uwblueprint.org',
+    from: 'info@raisingtheroof.org',
     subject: `Invitation to join a team for Raising the Roof's Toque Campaign Fundraiser`,
     html: `You have been invited to join a team for Raising the Roof's Toque Campaign Fundraiser! Please join using this link: <a href="${inviteUrl}">${inviteUrl}</a>`,
   };
@@ -116,6 +115,7 @@ const teamsResolvers = {
         await sendTeamInvites(emails, teamId);
         return true;
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.log(error);
       }
       return false;
