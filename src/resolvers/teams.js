@@ -12,7 +12,7 @@ const createTeamInviteMessage = teamId => {
     from: 'info@raisingtheroof.org',
     subject: `Invitation to join a team for Raising the Roof's Toque Campaign Fundraiser`,
     replyTo: 'skovacev@raisingtheroof.org',
-    html: `You have been invited to join a team for Raising the Roof's Toque Campaign Fundraiser! Please join using this link: <a href="${inviteUrl}">${inviteUrl}</a>`,
+    html: `You have been invited to join a team for Raising the Roof's Toque Campaign Fundraiser! Please join <a href="${inviteUrl}">here</a>.`,
   };
 };
 
