@@ -97,20 +97,38 @@ const teamsResolvers = {
       return true;
     },
 
-    async updateTeam(root, { id, name, organization, amountRaised, itemsSold, isArchived }) {
-      const team = await models.Team.findOne({ where: { id } });
-      if (team === null) {
-        throw new Error('Team Not Found');
+    async updateTeamName(root, { id, name }) {
+      console.log(id, name);
+      try{
+        const team = await models.Team.update({name}, {
+          where: { id },
+          returning: true
+        });
+        if(team.length == 2){
+          return team[1][0].dataValues;
+        }
       }
-      team.name = name || team.name;
-      team.organization = organization || team.organization;
-      team.amountRaised = amountRaised || team.amountRaised;
-      team.itemsSold = itemsSold || team.itemsSold;
-      team.isArchived = isArchived || team.isArchived;
-
-      await team.save();
-      return team;
+      catch(error){
+        console.log(error);
+      }
     },
+
+    async updateTeamOrganization(root, { id, organization }) {
+      console.log(id, organization);
+      try{
+        const team = await models.Team.update({organization}, {
+          where: { id },
+          returning: true
+        });
+        if(team.length == 2){
+          return team[1][0].dataValues;
+        }
+      }
+      catch(error){
+        console.log(error);
+      }
+    },
+
     async inviteUsersToTeam(root, { emails, teamId }) {
       try {
         await sendTeamInvites(emails, teamId);
