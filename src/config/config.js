@@ -26,4 +26,6 @@ module.exports = {
   CLIENT_URL: process.env.CLIENT_URL,
   SENDGRID_API_KEY: process.env.SENDGRID_API_KEY || '',
   SHOPIFY_KEY: process.env.SHOPIFY_KEY,
+  EMAIL_FROM_ADDRESS: process.env.EMAIL_FROM_ADDRESS,
+  EMAIL_REPLYTO_ADDRESS: process.env.EMAIL_REPLYTO_ADDRESS,
 };
