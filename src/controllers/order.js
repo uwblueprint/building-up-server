@@ -1,4 +1,10 @@
-const models = require('./index');
+const models = require('../models');
+
+const getAllOrders = () => {
+  return models.Order.findAll();
+};
+
+const findByOrderId = id => models.Order.findByPk(id);
 
 const findByOrderNumber = orderNumber => {
   return models.Order.findOne({
@@ -8,4 +14,6 @@ const findByOrderNumber = orderNumber => {
   });
 };
 
-exports.findByOrderNumber = findByOrderNumber;
+module.exports.getAllOrders = getAllOrders;
+module.exports.findByOrderId = findByOrderId;
+module.exports.findByOrderNumber = findByOrderNumber;

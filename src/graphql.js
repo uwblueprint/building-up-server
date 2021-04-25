@@ -1,20 +1,7 @@
 const { makeExecutableSchema, addSchemaLevelResolveFunction, gql } = require('apollo-server');
 const { merge } = require('lodash');
-const {
-  helloWorldTypeDefs,
-  teamsTypeDefs,
-  ordersTypeDefs,
-  paymentsTypeDefs,
-  authTypeDefs,
-  usersTypeDefs,
-} = require('./schemas');
-const {
-  helloWorldResolvers,
-  teamsResolvers,
-  paymentsResolvers,
-  authResolvers,
-  usersResolvers,
-} = require('./resolvers');
+const { teamsTypeDefs, ordersTypeDefs, authTypeDefs, usersTypeDefs } = require('./schemas');
+const { teamsResolvers, authResolvers, usersResolvers, ordersResolvers } = require('./resolvers');
 
 // Base query schema, other queries extend this
 const Query = gql`
@@ -31,17 +18,8 @@ const Mutation = gql`
 `;
 
 const schema = makeExecutableSchema({
-  typeDefs: [
-    Query,
-    Mutation,
-    helloWorldTypeDefs,
-    teamsTypeDefs,
-    ordersTypeDefs,
-    authTypeDefs,
-    paymentsTypeDefs,
-    usersTypeDefs,
-  ],
-  resolvers: merge(helloWorldResolvers, teamsResolvers, authResolvers, paymentsResolvers, usersResolvers),
+  typeDefs: [Query, Mutation, teamsTypeDefs, ordersTypeDefs, authTypeDefs, usersTypeDefs],
+  resolvers: merge(teamsResolvers, authResolvers, usersResolvers, ordersResolvers),
 });
 
 const rootResolveFunction = (parent, args, context, info) => {

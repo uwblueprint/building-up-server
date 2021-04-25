@@ -2,13 +2,20 @@ const { gql } = require('apollo-server-express');
 
 const ordersTypeDefs = gql`
   type Orders {
+    id: ID!
     orderNumber: Int!
-    userId: Int!
-    teamId: Int!
-    teamName: String!
-    price: Int!
+    teamId: String
+    price: Float!
+    donationAmount: Float!
     numberOfItems: Int!
-    purchaseDate: String!
+    createdAt: String!
+    updatedAt: String!
+  }
+  extend type Query {
+    getOrder(id: ID!): Orders
+    getOrderByOrderNumber(orderNumber: Int!): Orders
+    getAllOrders: [Orders!]!
   }
 `;
+
 exports.ordersTypeDefs = ordersTypeDefs;

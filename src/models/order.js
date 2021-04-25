@@ -8,10 +8,6 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Order.belongsTo(models.User, {
-        foreignKey: 'userId',
-        allowNull: false,
-      });
       Order.belongsTo(models.Team, {
         foreignKey: 'teamId',
       });
@@ -19,11 +15,23 @@ module.exports = (sequelize, DataTypes) => {
   }
   Order.init(
     {
-      orderNumber: {
-        type: DataTypes.INTEGER,
+      // The order ID is used for querying the shopify API
+      id: {
+        type: DataTypes.STRING,
         primaryKey: true,
       },
+      // The order number is what you see in the store interface, i.e. #1234
+      // See https://shopify.dev/docs/admin-api/rest/reference/orders/order for more info
+      orderNumber: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        unique: true,
+      },
       price: {
+        type: DataTypes.DECIMAL(20, 2),
+        allowNull: false,
+      },
+      donationAmount: {
         type: DataTypes.DECIMAL(20, 2),
         allowNull: false,
       },
@@ -31,7 +39,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      purchaseDate: {
+      createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
       },

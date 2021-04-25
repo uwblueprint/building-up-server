@@ -27,7 +27,7 @@ module.exports = {
         references: {
           model: 'Teams',
           key: 'id',
-        }
+        },
       },
       createdAt: {
         type: Sequelize.DATE,
