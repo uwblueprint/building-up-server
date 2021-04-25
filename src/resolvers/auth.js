@@ -21,7 +21,7 @@ const createResetPasswordEmail = resetToken => {
     from: 'info@raisingtheroof.org',
     subject: `Raising the Roof Password Reset Attempt`,
     replyTo: 'skovacev@raisingtheroof.org',
-    html: `Reset your password <a href="${resetPasswordUrl}"> here</a>.`,
+    html: `Reset your password <a href="${resetPasswordUrl}">here</a>.`,
   };
 };
 
