@@ -15,6 +15,7 @@ const createVerificationEmail = hash => {
   return {
     from: 'info@raisingtheroof.org',
     subject: `Verify your email for Raising the Roof's Toque Campaign`,
+    replyTo: 'skovacev@raisingtheroof.org',
     html: `Thank you for signing up! Please verify your email with this link: <a href="${inviteUrl}">${inviteUrl}</a>`,
   };
 };

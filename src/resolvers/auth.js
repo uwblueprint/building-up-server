@@ -20,7 +20,8 @@ const createResetPasswordEmail = resetToken => {
   return {
     from: 'info@raisingtheroof.org',
     subject: `Raising the Roof Password Reset Attempt`,
-    html: `Reset your password <a href="${resetPasswordUrl}"> here </a>`,
+    replyTo: 'skovacev@raisingtheroof.org',
+    html: `Reset your password <a href="${resetPasswordUrl}"> here.</a>`,
   };
 };
 
@@ -28,7 +29,8 @@ const createResetAttemptEmail = () => {
   return {
     from: 'info@raisingtheroof.org',
     subject: `Raising the Roof Password Reset Attempt`,
-    html: `Someone recently attempted to reset your password at ${CLIENT_URL}, however, you do not have an account with us`,
+    replyTo: 'skovacev@raisingtheroof.org',
+    html: `Someone recently attempted to reset your password at ${CLIENT_URL}, however, you do not have an account with us.`,
   };
 };
 
