@@ -97,35 +97,16 @@ const teamsResolvers = {
       return true;
     },
 
-    async updateTeamName(root, { id, name }) {
-      console.log(id, name);
+    async updateTeamNameOrg(root, {id, name, organization}){
       try{
-        const team = await models.Team.update({name}, {
+        const team = await models.Team.update({name, organization}, {
           where: { id },
           returning: true
         });
-        if(team.length == 2){
-          return team[1][0].dataValues;
-        }
+        return team[1][0].dataValues;
       }
-      catch(error){
-        console.log(error);
-      }
-    },
-
-    async updateTeamOrganization(root, { id, organization }) {
-      console.log(id, organization);
-      try{
-        const team = await models.Team.update({organization}, {
-          where: { id },
-          returning: true
-        });
-        if(team.length == 2){
-          return team[1][0].dataValues;
-        }
-      }
-      catch(error){
-        console.log(error);
+      catch{
+        throw new Error('No User Found');
       }
     },
 
