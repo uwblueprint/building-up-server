@@ -14,7 +14,7 @@ const TEAM_ID_KEY = 'teamId';
  * @returns {string | null}
  */
 function getTeamIdFromNoteAttributes(noteAttributes) {
-  const filtered = noteAttributes.filter(val => typeof val === 'object' && val.key && val.key === TEAM_ID_KEY);
+  const filtered = noteAttributes.filter(val => typeof val === 'object' && val.name && val.name === TEAM_ID_KEY);
   const teamId = filtered[0] ? filtered[0].value : null;
 
   return teamId;
@@ -27,7 +27,9 @@ function getTeamIdFromNoteAttributes(noteAttributes) {
 function computeQuantity(event) {
   const { line_items: lineItems, refunds } = event;
 
-  const totalQuantity = lineItems.reduce((total, item) => total + item.quantity, 0);
+  const totalQuantity = lineItems
+    .filter(({ product_exists: productExists }) => productExists !== false)
+    .reduce((total, item) => total + item.quantity, 0);
   const refundQuantity = refunds.reduce((total, item) => total + item.quantity, 0);
 
   return totalQuantity - refundQuantity;
@@ -70,7 +72,7 @@ function orderChanges(incomingOrder, existingOrder) {
     teamId: newTeamId !== teamId ? newTeamId : teamId,
     price: newPrice,
     numberOfItems: newQuantity,
-    donationAmount,
+    donationAmount: parseFloat(donationAmount),
   };
 
   return changelog;
@@ -167,7 +169,7 @@ const cancelOrderWebhook = async (req, res) => {
 
       if (rowsDeleted === 1) {
         if (teamId) {
-          decrementTeamSales(teamId, numberOfItems, price + donationAmount);
+          decrementTeamSales(teamId, numberOfItems, parseFloat(price) + parseFloat(donationAmount));
         }
 
         res.json({
@@ -215,9 +217,9 @@ const updateOrderWebhook = async (req, res) => {
     const { note_attributes: noteAttributes } = event;
     const id = event.id.toString();
     const existingOrder = await findByOrderId(id);
-    const { numberOfItems, price, donationAmount } = existingOrder;
 
     if (existingOrder != null) {
+      const { numberOfItems, price, donationAmount } = existingOrder;
       // we can cross reference the incoming changes with existing data in our DB.
       const changelog = orderChanges(event, existingOrder);
 
@@ -235,8 +237,8 @@ const updateOrderWebhook = async (req, res) => {
           if (teamId) {
             incrementTeamSales(
               teamId,
-              changelog.numberOfItems - numberOfItems,
-              changelog.price + changelog.donationAmount - (price + donationAmount),
+              changelog.numberOfItems - parseFloat(numberOfItems),
+              changelog.price + changelog.donationAmount - (parseFloat(price) + parseFloat(donationAmount)),
             );
           }
         }
