@@ -3,6 +3,7 @@
 const models = require('../models');
 const { findByOrderId } = require('./order');
 const { incrementTeamSales, decrementTeamSales } = require('./team');
+const { parseFloatSafe } = require('../utils/number');
 
 const TEAM_ID_KEY = 'teamId';
 
@@ -50,7 +51,7 @@ function computeUpdatedPrice(event) {
     });
   }
 
-  return parseFloat(event.subtotal_price) - refund;
+  return parseFloatSafe(event.subtotal_price) - refund;
 }
 
 /*
@@ -60,7 +61,7 @@ function computeUpdatedPrice(event) {
 */
 function orderChanges(incomingOrder, existingOrder) {
   // this function will return an object of updated values relevant to our DB table
-  const { note_attributes: noteAttributes, updated_at: updatedAt, donation_amount: donationAmount } = incomingOrder;
+  const { note_attributes: noteAttributes, updated_at: updatedAt, total_tip_received: donationAmount } = incomingOrder;
   const { teamId } = existingOrder;
 
   const newTeamId = getTeamIdFromNoteAttributes(noteAttributes);
@@ -72,7 +73,7 @@ function orderChanges(incomingOrder, existingOrder) {
     teamId: newTeamId !== teamId ? newTeamId : teamId,
     price: newPrice,
     numberOfItems: newQuantity,
-    donationAmount: parseFloat(donationAmount),
+    donationAmount: parseFloatSafe(donationAmount),
   };
 
   return changelog;
@@ -108,8 +109,8 @@ const captureOrderWebhook = async (req, res) => {
     try {
       const teamId = getTeamIdFromNoteAttributes(noteAttributes);
       const numberOfItems = computeQuantity(event);
-      const priceInTable = parseFloat(subtotalPrice);
-      const donationAmount = parseFloat(totalTipReceived);
+      const priceInTable = parseFloatSafe(subtotalPrice);
+      const donationAmount = parseFloatSafe(totalTipReceived);
       const totalPrice = priceInTable + donationAmount;
 
       const item = await models.Order.create({
@@ -169,9 +170,8 @@ const cancelOrderWebhook = async (req, res) => {
 
       if (rowsDeleted === 1) {
         if (teamId) {
-          decrementTeamSales(teamId, numberOfItems, parseFloat(price) + parseFloat(donationAmount));
+          decrementTeamSales(teamId, numberOfItems, parseFloatSafe(price) + parseFloatSafe(donationAmount));
         }
-
         res.json({
           Message: 'Success: payment record was deleted',
           id,
@@ -237,8 +237,8 @@ const updateOrderWebhook = async (req, res) => {
           if (teamId) {
             incrementTeamSales(
               teamId,
-              changelog.numberOfItems - parseFloat(numberOfItems),
-              changelog.price + changelog.donationAmount - (parseFloat(price) + parseFloat(donationAmount)),
+              changelog.numberOfItems - parseFloatSafe(numberOfItems),
+              changelog.price + changelog.donationAmount - (parseFloatSafe(price) + parseFloatSafe(donationAmount)),
             );
           }
         }
