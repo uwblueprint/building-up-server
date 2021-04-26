@@ -12,7 +12,7 @@ const teamsTypeDefs = gql`
   extend type Query {
     getTeam(id: String!): Team
     getAllTeams: [Team!]!
-    latestOrders(id: String!, amountPrev: Int): [Orders!]!
+    getLatestOrders(id: String!, amountPrev: Int): [Orders!]!
     getSalesInfoForTeam(id: String!): [Orders!]!
     getGlobalLeaderboard: [Team!]!
   }

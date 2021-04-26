@@ -38,7 +38,7 @@ const teamsResolvers = {
     async getAllTeams(root, args) {
       return models.Team.findAll();
     },
-    async latestOrders(root, { id, amountPrev }) {
+    async getLatestOrders(root, { id, amountPrev }) {
       return models.Order.findAll({
         where: {
           teamId: id,
