@@ -28,6 +28,7 @@ function getTeamIdFromNoteAttributes(noteAttributes) {
 function computeQuantity(event) {
   const { line_items: lineItems, refunds } = event;
 
+  // Donations count as an item with no productId (productExists is false), filter that out
   const totalQuantity = lineItems
     .filter(({ product_exists: productExists }) => productExists !== false)
     .reduce((total, item) => total + item.quantity, 0);
@@ -75,6 +76,10 @@ function orderChanges(incomingOrder, existingOrder) {
     numberOfItems: newQuantity,
     donationAmount: parseFloatSafe(donationAmount),
   };
+
+  if (changelog.teamId === '') {
+    changelog.teamId = null;
+  }
 
   return changelog;
 }
@@ -219,7 +224,7 @@ const updateOrderWebhook = async (req, res) => {
     const existingOrder = await findByOrderId(id);
 
     if (existingOrder != null) {
-      const { numberOfItems, price, donationAmount } = existingOrder;
+      const { numberOfItems, price, donationAmount, teamId: prevTeamId } = existingOrder;
       // we can cross reference the incoming changes with existing data in our DB.
       const changelog = orderChanges(event, existingOrder);
 
@@ -232,13 +237,36 @@ const updateOrderWebhook = async (req, res) => {
 
       if (rows[0] === 1 && rows[1] !== null) {
         if (Object.hasOwnProperty.call(changelog, 'numberOfItems')) {
-          const teamId = getTeamIdFromNoteAttributes(noteAttributes);
+          const newTeamId = getTeamIdFromNoteAttributes(noteAttributes);
 
-          if (teamId) {
+          if (prevTeamId) {
+            // If the order was associated with a team previously:
+            if (prevTeamId === newTeamId) {
+              // The order is associated with the same team:
+              // Update the teams sales with the delta
+              incrementTeamSales(
+                prevTeamId,
+                changelog.numberOfItems - parseFloatSafe(numberOfItems),
+                changelog.price + changelog.donationAmount - (parseFloatSafe(price) + parseFloatSafe(donationAmount)),
+              );
+            } else {
+              // The orders are associated with different teams:
+              // remove the sales from the previous team
+              decrementTeamSales(
+                prevTeamId,
+                parseFloatSafe(numberOfItems),
+                parseFloatSafe(price) + parseFloatSafe(donationAmount),
+              );
+            }
+          }
+
+          if (newTeamId && newTeamId !== prevTeamId) {
+            // The new team exists and !== the previous team,
+            // Update sales for the new team with the incoming event
             incrementTeamSales(
-              teamId,
-              changelog.numberOfItems - parseFloatSafe(numberOfItems),
-              changelog.price + changelog.donationAmount - (parseFloatSafe(price) + parseFloatSafe(donationAmount)),
+              newTeamId,
+              computeQuantity(event),
+              computeUpdatedPrice(event) + parseFloatSafe(event.total_tip_received),
             );
           }
         }
