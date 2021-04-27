@@ -4,9 +4,10 @@ const { sequelize } = require('../models');
 const models = require('../models');
 const { sendEmail } = require('../services/sendEmail');
 const { CLIENT_URL, EMAIL_REPLYTO_ADDRESS, EMAIL_FROM_ADDRESS } = require('../config/config');
+const { DASHBOARD_ROOT_PATH } = require('../constants/client-routes');
 
 const createTeamInviteMessage = teamId => {
-  const inviteUrl = `${CLIENT_URL}/invite/${teamId}`;
+  const inviteUrl = `${CLIENT_URL}/${DASHBOARD_ROOT_PATH}/invite/${teamId}`;
   // convert teamId to teamName
   return {
     from: EMAIL_FROM_ADDRESS,
@@ -97,15 +98,17 @@ const teamsResolvers = {
       return true;
     },
 
-    async updateTeamNameOrg(root, {id, name, organization}){
-      try{
-        const team = await models.Team.update({name, organization}, {
-          where: { id },
-          returning: true
-        });
+    async updateTeamNameOrg(root, { id, name, organization }) {
+      try {
+        const team = await models.Team.update(
+          { name, organization },
+          {
+            where: { id },
+            returning: true,
+          },
+        );
         return team[1][0].dataValues;
-      }
-      catch{
+      } catch {
         throw new Error('Team Not Found');
       }
     },
