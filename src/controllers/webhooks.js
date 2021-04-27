@@ -3,6 +3,7 @@
 const models = require('../models');
 const { findByOrderId } = require('./order');
 const { incrementTeamSales, decrementTeamSales } = require('./team');
+const { parseFloatSafe } = require('../utils/number');
 
 const TEAM_ID_KEY = 'teamId';
 
@@ -14,7 +15,7 @@ const TEAM_ID_KEY = 'teamId';
  * @returns {string | null}
  */
 function getTeamIdFromNoteAttributes(noteAttributes) {
-  const filtered = noteAttributes.filter(val => typeof val === 'object' && val.key && val.key === TEAM_ID_KEY);
+  const filtered = noteAttributes.filter(val => typeof val === 'object' && val.name && val.name === TEAM_ID_KEY);
   const teamId = filtered[0] ? filtered[0].value : null;
 
   return teamId;
@@ -27,7 +28,10 @@ function getTeamIdFromNoteAttributes(noteAttributes) {
 function computeQuantity(event) {
   const { line_items: lineItems, refunds } = event;
 
-  const totalQuantity = lineItems.reduce((total, item) => total + item.quantity, 0);
+  // Donations count as an item with no productId (productExists is false), filter that out
+  const totalQuantity = lineItems
+    .filter(({ product_exists: productExists }) => productExists !== false)
+    .reduce((total, item) => total + item.quantity, 0);
   const refundQuantity = refunds.reduce((total, item) => total + item.quantity, 0);
 
   return totalQuantity - refundQuantity;
@@ -48,7 +52,7 @@ function computeUpdatedPrice(event) {
     });
   }
 
-  return parseFloat(event.subtotal_price) - refund;
+  return parseFloatSafe(event.subtotal_price) - refund;
 }
 
 /*
@@ -58,7 +62,7 @@ function computeUpdatedPrice(event) {
 */
 function orderChanges(incomingOrder, existingOrder) {
   // this function will return an object of updated values relevant to our DB table
-  const { note_attributes: noteAttributes, updated_at: updatedAt, donation_amount: donationAmount } = incomingOrder;
+  const { note_attributes: noteAttributes, updated_at: updatedAt, total_tip_received: donationAmount } = incomingOrder;
   const { teamId } = existingOrder;
 
   const newTeamId = getTeamIdFromNoteAttributes(noteAttributes);
@@ -70,8 +74,12 @@ function orderChanges(incomingOrder, existingOrder) {
     teamId: newTeamId !== teamId ? newTeamId : teamId,
     price: newPrice,
     numberOfItems: newQuantity,
-    donationAmount,
+    donationAmount: parseFloatSafe(donationAmount),
   };
+
+  if (changelog.teamId === '') {
+    changelog.teamId = null;
+  }
 
   return changelog;
 }
@@ -106,8 +114,8 @@ const captureOrderWebhook = async (req, res) => {
     try {
       const teamId = getTeamIdFromNoteAttributes(noteAttributes);
       const numberOfItems = computeQuantity(event);
-      const priceInTable = parseFloat(subtotalPrice);
-      const donationAmount = parseFloat(totalTipReceived);
+      const priceInTable = parseFloatSafe(subtotalPrice);
+      const donationAmount = parseFloatSafe(totalTipReceived);
       const totalPrice = priceInTable + donationAmount;
 
       const item = await models.Order.create({
@@ -167,9 +175,8 @@ const cancelOrderWebhook = async (req, res) => {
 
       if (rowsDeleted === 1) {
         if (teamId) {
-          decrementTeamSales(teamId, numberOfItems, price + donationAmount);
+          decrementTeamSales(teamId, numberOfItems, parseFloatSafe(price) + parseFloatSafe(donationAmount));
         }
-
         res.json({
           Message: 'Success: payment record was deleted',
           id,
@@ -215,9 +222,9 @@ const updateOrderWebhook = async (req, res) => {
     const { note_attributes: noteAttributes } = event;
     const id = event.id.toString();
     const existingOrder = await findByOrderId(id);
-    const { numberOfItems, price, donationAmount } = existingOrder;
 
     if (existingOrder != null) {
+      const { numberOfItems, price, donationAmount, teamId: prevTeamId } = existingOrder;
       // we can cross reference the incoming changes with existing data in our DB.
       const changelog = orderChanges(event, existingOrder);
 
@@ -230,13 +237,36 @@ const updateOrderWebhook = async (req, res) => {
 
       if (rows[0] === 1 && rows[1] !== null) {
         if (Object.hasOwnProperty.call(changelog, 'numberOfItems')) {
-          const teamId = getTeamIdFromNoteAttributes(noteAttributes);
+          const newTeamId = getTeamIdFromNoteAttributes(noteAttributes);
 
-          if (teamId) {
+          if (prevTeamId) {
+            // If the order was associated with a team previously:
+            if (prevTeamId === newTeamId) {
+              // The order is associated with the same team:
+              // Update the teams sales with the delta
+              incrementTeamSales(
+                prevTeamId,
+                changelog.numberOfItems - parseFloatSafe(numberOfItems),
+                changelog.price + changelog.donationAmount - (parseFloatSafe(price) + parseFloatSafe(donationAmount)),
+              );
+            } else {
+              // The orders are associated with different teams:
+              // remove the sales from the previous team
+              decrementTeamSales(
+                prevTeamId,
+                parseFloatSafe(numberOfItems),
+                parseFloatSafe(price) + parseFloatSafe(donationAmount),
+              );
+            }
+          }
+
+          if (newTeamId && newTeamId !== prevTeamId) {
+            // The new team exists and !== the previous team,
+            // Update sales for the new team with the incoming event
             incrementTeamSales(
-              teamId,
-              changelog.numberOfItems - numberOfItems,
-              changelog.price + changelog.donationAmount - (price + donationAmount),
+              newTeamId,
+              computeQuantity(event),
+              computeUpdatedPrice(event) + parseFloatSafe(event.total_tip_received),
             );
           }
         }
