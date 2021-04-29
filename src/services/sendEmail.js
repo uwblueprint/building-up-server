@@ -13,7 +13,10 @@ const createVerificationEmail = hash => {
   const inviteUrl = `${CLIENT_URL}/verify/${hash}`;
 
   return {
-    from: EMAIL_FROM_ADDRESS,
+    from: {
+      name: 'Raising the Roof / Chez Toit',
+      email: EMAIL_FROM_ADDRESS,
+    },
     subject: `Verify your email for Raising the Roof's Toque Campaign`,
     replyTo: EMAIL_REPLYTO_ADDRESS,
     html: `Thank you for signing up! Please verify your email <a href="${inviteUrl}">here</a>.`,
