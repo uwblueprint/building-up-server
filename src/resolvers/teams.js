@@ -9,7 +9,10 @@ const createTeamInviteMessage = teamId => {
   const inviteUrl = `${CLIENT_URL}/invite/${teamId}`;
   // convert teamId to teamName
   return {
-    from: EMAIL_FROM_ADDRESS,
+    from: {
+      name: 'Raising the Roof / Chez Toit',
+      email: EMAIL_FROM_ADDRESS,
+    },
     subject: `Invitation to join a team for Raising the Roof's Toque Campaign Fundraiser`,
     replyTo: EMAIL_REPLYTO_ADDRESS,
     html: `You have been invited to join a team for Raising the Roof's Toque Campaign Fundraiser! Please join <a href="${inviteUrl}">here</a>.`,
@@ -96,15 +99,17 @@ const teamsResolvers = {
       return true;
     },
 
-    async updateTeamNameOrg(root, {id, name, organization}){
-      try{
-        const team = await models.Team.update({name, organization}, {
-          where: { id },
-          returning: true
-        });
+    async updateTeamNameOrg(root, { id, name, organization }) {
+      try {
+        const team = await models.Team.update(
+          { name, organization },
+          {
+            where: { id },
+            returning: true,
+          },
+        );
         return team[1][0].dataValues;
-      }
-      catch{
+      } catch {
         throw new Error('Team Not Found');
       }
     },
