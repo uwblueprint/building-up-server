@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const models = require('../models');
 const { createVerificationEmail, sendEmail } = require('../services/sendEmail');
-const { CLIENT_URL, EMAIL_FROM_ADDRESS, EMAIL_REPLYTO_ADDRESS } = require('../config/config');
+const { CLIENT_URL } = require('../config/config');
 const {
   authenticateResetPasswordToken,
   createNewAccessToken,
@@ -16,24 +16,14 @@ const {
 const createResetPasswordEmail = resetToken => {
   const resetPasswordUrl = `${CLIENT_URL}/resetPassword/${resetToken}`;
   return {
-    from: {
-      name: 'Raising the Roof / Chez Toit',
-      email: EMAIL_FROM_ADDRESS,
-    },
     subject: `Raising the Roof Password Reset Attempt`,
-    replyTo: EMAIL_REPLYTO_ADDRESS,
     html: `Reset your password <a href="${resetPasswordUrl}">here</a>.`,
   };
 };
 
 const createResetAttemptEmail = () => {
   return {
-    from: {
-      name: 'Raising the Roof / Chez Toit',
-      email: EMAIL_FROM_ADDRESS,
-    },
     subject: `Raising the Roof Password Reset Attempt`,
-    replyTo: EMAIL_REPLYTO_ADDRESS,
     html: `Someone recently attempted to reset your password at ${CLIENT_URL}, however, you do not have an account with us.`,
   };
 };

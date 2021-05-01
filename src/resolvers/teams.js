@@ -3,18 +3,13 @@ const { Sequelize } = require('sequelize');
 const { sequelize } = require('../models');
 const models = require('../models');
 const { sendEmail } = require('../services/sendEmail');
-const { CLIENT_URL, EMAIL_REPLYTO_ADDRESS, EMAIL_FROM_ADDRESS } = require('../config/config');
+const { CLIENT_URL } = require('../config/config');
 
 const createTeamInviteMessage = teamId => {
   const inviteUrl = `${CLIENT_URL}/invite/${teamId}`;
-  // convert teamId to teamName
+
   return {
-    from: {
-      name: 'Raising the Roof / Chez Toit',
-      email: EMAIL_FROM_ADDRESS,
-    },
     subject: `Invitation to join a team for Raising the Roof's Toque Campaign Fundraiser`,
-    replyTo: EMAIL_REPLYTO_ADDRESS,
     html: `You have been invited to join a team for Raising the Roof's Toque Campaign Fundraiser! Please join <a href="${inviteUrl}">here</a>.`,
   };
 };
