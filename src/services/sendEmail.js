@@ -6,6 +6,14 @@ const { DASHBOARD_ROOT_PATH } = require('../constants/client-routes');
 
 sgMail.setApiKey(SENDGRID_API_KEY);
 
+const emailBase = {
+  from: {
+    name: 'Raising the Roof / Chez Toit',
+    email: EMAIL_FROM_ADDRESS,
+  },
+  replyTo: EMAIL_REPLYTO_ADDRESS,
+};
+
 const createVerificationEmail = hash => {
   if (hash == null) {
     throw new Error('Null Hash');
@@ -14,16 +22,14 @@ const createVerificationEmail = hash => {
   const inviteUrl = `${CLIENT_URL}/${DASHBOARD_ROOT_PATH}/verify/${hash}`;
 
   return {
-    from: EMAIL_FROM_ADDRESS,
     subject: `Verify your email for Raising the Roof's Toque Campaign`,
-    replyTo: EMAIL_REPLYTO_ADDRESS,
     html: `Thank you for signing up! Please verify your email <a href="${inviteUrl}">here</a>.`,
   };
 };
 
 const sendEmail = async msg => {
   return sgMail
-    .send(msg)
+    .send({ ...emailBase, ...msg })
     .then(() => {
       // eslint-disable-next-line no-console
       console.log(`Email sent to ${msg.to}`);
