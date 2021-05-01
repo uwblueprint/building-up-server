@@ -2,6 +2,7 @@
 // https://github.com/sendgrid/sendgrid-nodejs
 const sgMail = require('@sendgrid/mail');
 const { SENDGRID_API_KEY, CLIENT_URL, EMAIL_FROM_ADDRESS, EMAIL_REPLYTO_ADDRESS } = require('../config/config');
+const { DASHBOARD_ROOT_PATH } = require('../constants/client-routes');
 
 sgMail.setApiKey(SENDGRID_API_KEY);
 
@@ -18,7 +19,7 @@ const createVerificationEmail = hash => {
     throw new Error('Null Hash');
   }
 
-  const inviteUrl = `${CLIENT_URL}/verify/${hash}`;
+  const inviteUrl = `${CLIENT_URL}/${DASHBOARD_ROOT_PATH}/verify/${hash}`;
 
   return {
     subject: `Verify your email for Raising the Roof's Toque Campaign`,

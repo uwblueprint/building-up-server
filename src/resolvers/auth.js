@@ -12,9 +12,10 @@ const {
   clearAccessTokenCookie,
   clearRefreshTokenCookie,
 } = require('../middleware/auth');
+const { DASHBOARD_ROOT_PATH } = require('../constants/client-routes');
 
 const createResetPasswordEmail = resetToken => {
-  const resetPasswordUrl = `${CLIENT_URL}/resetPassword/${resetToken}`;
+  const resetPasswordUrl = `${CLIENT_URL}/${DASHBOARD_ROOT_PATH}/resetPassword/${resetToken}`;
   return {
     subject: `Raising the Roof Password Reset Attempt`,
     html: `Reset your password <a href="${resetPasswordUrl}">here</a>.`,

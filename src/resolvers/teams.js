@@ -4,9 +4,10 @@ const { sequelize } = require('../models');
 const models = require('../models');
 const { sendEmail } = require('../services/sendEmail');
 const { CLIENT_URL } = require('../config/config');
+const { DASHBOARD_ROOT_PATH } = require('../constants/client-routes');
 
 const createTeamInviteMessage = teamId => {
-  const inviteUrl = `${CLIENT_URL}/invite/${teamId}`;
+  const inviteUrl = `${CLIENT_URL}/${DASHBOARD_ROOT_PATH}/invite/${teamId}`;
 
   return {
     subject: `Invitation to join a team for Raising the Roof's Toque Campaign Fundraiser`,

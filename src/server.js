@@ -19,8 +19,11 @@ const app = express();
 const corsOptions = {
   origin: [
     'http://localhost:3000',
+    /https:\/\/toques\.raisingtheroof\.org/,
     /https:\/\/building-up\.netlify\.app/,
     /https:\/\/deploy-preview-\d+--building-up\.netlify\.app/,
+    // Temporary
+    /https:\/\/deploy-preview-\d+--building-up-bp-old\.netlify\.app/,
   ],
   credentials: true,
 };
