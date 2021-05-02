@@ -81,11 +81,11 @@ const usersResolvers = {
       if (user === null) {
         throw new UserInputError('User not found');
       }
-      const team = await models.Team.findByPk(user.teamId);
-      if (team === null){
-        throw new UserInputError('User does not have a team')
+      if (user.teamId === null){
+        throw new UserInputError('User does not have a team');
       }
       if(sendNotifEmail){
+        const team = await models.Team.findByPk(user.teamId);
         sendLeaveTeamNotif(user.email, team.name);
       }
       user.teamId = null;
