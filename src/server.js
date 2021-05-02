@@ -32,6 +32,8 @@ app.use(cookieParser());
 
 app.use('/shopify', routes);
 
+app.get('/', (req, res, next) => {res.send('PONG')})
+
 app.use(authenticateToken);
 
 server.applyMiddleware({ app, cors: corsOptions });
