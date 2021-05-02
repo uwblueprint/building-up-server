@@ -2,6 +2,19 @@ const { UserInputError } = require('apollo-server-errors');
 const models = require('../models');
 const { createVerificationEmail, sendEmail } = require('../services/sendEmail');
 
+const createRemovalEmail = (teamName) => {
+  return {
+    subject: `Raising the Roof Team Removal`,
+    html: `You were kicked off of team ${teamName}`,
+  };
+};
+
+const sendLeaveTeamNotif = (email, teamName) => {
+  const message = createRemovalEmail(teamName);
+  const resetEmail = { to: { email }, ...message };
+  return sendEmail(resetEmail);
+};
+
 const usersResolvers = {
   Query: {
     async getUsersForTeam(root, { teamId }) {
@@ -63,10 +76,17 @@ const usersResolvers = {
       return user;
     },
 
-    async leaveTeam(root, { id }) {
+    async leaveTeam(root, { id, sendNotifEmail}) {
       const user = await models.User.findByPk(id);
-      if (user == null) {
+      if (user === null) {
         throw new UserInputError('User not found');
+      }
+      if (user.teamId === null){
+        throw new UserInputError('User does not have a team');
+      }
+      if(sendNotifEmail){
+        const team = await models.Team.findByPk(user.teamId);
+        sendLeaveTeamNotif(user.email, team.name);
       }
       user.teamId = null;
       await user.save();

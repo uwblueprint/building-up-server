@@ -28,7 +28,7 @@ const usersTypeDefs = gql`
     ): User
     updateUser(id: ID!, firstName: String, lastName: String, email: String, password: String, role: String): User
     joinTeam(id: ID!, teamId: String): User
-    leaveTeam(id: ID!): User
+    leaveTeam(id: ID!, sendNotifEmail: Boolean!): User
     verifyAccount(id: ID!, hash: String!): User
     sendVerificationEmail(id: ID!): Boolean
   }
