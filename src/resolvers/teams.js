@@ -6,17 +6,22 @@ const { sendEmail } = require('../services/sendEmail');
 const { CLIENT_URL } = require('../config/config');
 const { DASHBOARD_ROOT_PATH } = require('../constants/client-routes');
 
-const createTeamInviteMessage = teamId => {
+const INVITE_EMAIL_TEMPLATE_ID = 'd-9000df3a467145f5aafa0da6e8d95cae';
+
+const createTeamInviteMessage = ({ teamId, name }) => {
   const inviteUrl = `${CLIENT_URL}/${DASHBOARD_ROOT_PATH}/invite/${teamId}`;
 
   return {
-    subject: `Invitation to join a team for Raising the Roof's Toque Campaign Fundraiser`,
-    html: `You have been invited to join a team for Raising the Roof's Toque Campaign Fundraiser! Please join <a href="${inviteUrl}">here</a>.`,
+    template_id: INVITE_EMAIL_TEMPLATE_ID,
+    dynamic_template_data: {
+      inviteUrl,
+      teamName: name,
+    },
   };
 };
 
-const sendTeamInvites = async (emails, teamId) => {
-  const message = createTeamInviteMessage(teamId);
+const sendTeamInvites = async (emails, { teamId, name }) => {
+  const message = createTeamInviteMessage({ teamId, name });
   return Promise.all(
     emails.map(email => {
       const invitationEmail = { to: { email }, ...message };
@@ -112,7 +117,8 @@ const teamsResolvers = {
 
     async inviteUsersToTeam(root, { emails, teamId }) {
       try {
-        await sendTeamInvites(emails, teamId);
+        const { name } = await models.Team.findByPk(teamId);
+        await sendTeamInvites(emails, { teamId, name });
         return true;
       } catch (error) {
         // eslint-disable-next-line no-console

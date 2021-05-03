@@ -2,15 +2,20 @@ const { UserInputError } = require('apollo-server-errors');
 const models = require('../models');
 const { createVerificationEmail, sendEmail } = require('../services/sendEmail');
 
-const createRemovalEmail = (teamName) => {
+const REMOVE_USER_FROM_TEAM_TEMPLATE_ID = 'd-be018957f772446daee8840728832228';
+
+const createRemovalEmail = (name, teamName) => {
   return {
-    subject: `Raising the Roof Team Removal`,
-    html: `You were kicked off of team ${teamName}`,
+    template_id: REMOVE_USER_FROM_TEAM_TEMPLATE_ID,
+    dynamic_template_data: {
+      name,
+      teamName,
+    },
   };
 };
 
-const sendLeaveTeamNotif = (email, teamName) => {
-  const message = createRemovalEmail(teamName);
+const sendLeaveTeamNotif = ({ firstName, lastName, email }, teamName) => {
+  const message = createRemovalEmail(`${firstName} ${lastName}`, teamName);
   const resetEmail = { to: { email }, ...message };
   return sendEmail(resetEmail);
 };
@@ -76,17 +81,18 @@ const usersResolvers = {
       return user;
     },
 
-    async leaveTeam(root, { id, sendNotifEmail}) {
+    async leaveTeam(root, { id, sendNotifEmail }) {
       const user = await models.User.findByPk(id);
       if (user === null) {
         throw new UserInputError('User not found');
       }
-      if (user.teamId === null){
+      const { teamId, firstName, lastName, email } = user;
+      if (teamId === null) {
         throw new UserInputError('User does not have a team');
       }
-      if(sendNotifEmail){
+      if (sendNotifEmail) {
         const team = await models.Team.findByPk(user.teamId);
-        sendLeaveTeamNotif(user.email, team.name);
+        sendLeaveTeamNotif({ firstName, lastName, email }, team.name);
       }
       user.teamId = null;
       await user.save();
@@ -123,8 +129,8 @@ const usersResolvers = {
           throw new Error('User is already verified');
         }
 
-        const { email } = user;
-        const message = createVerificationEmail(user.verificationHash);
+        const { email, firstName, lastName } = user;
+        const message = createVerificationEmail(`${firstName} ${lastName}`, user.verificationHash);
         const verificationEmail = { to: { email }, ...message };
         sendEmail(verificationEmail);
         return true;
