@@ -68,11 +68,11 @@ const authenticateToken = (req, res, next) => {
         req.userId = refreshData.userId;
       } catch (error2) {
         // eslint-disable-next-line no-console
-        console.log(error2);
+        // console.log(error2);
       }
     } else {
       // eslint-disable-next-line no-console
-      console.log(error);
+      // console.log(error);
     }
   }
 
