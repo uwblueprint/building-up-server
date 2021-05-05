@@ -67,12 +67,10 @@ const authenticateToken = (req, res, next) => {
         addAccessTokenCookie(res, newAccessToken);
         req.userId = refreshData.userId;
       } catch (error2) {
-        // eslint-disable-next-line no-console
-        // console.log(error2);
+        // do nothing
       }
     } else {
-      // eslint-disable-next-line no-console
-      // console.log(error);
+      // do nothing
     }
   }
 
