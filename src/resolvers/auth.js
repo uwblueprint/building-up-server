@@ -14,11 +14,16 @@ const {
 } = require('../middleware/auth');
 const { DASHBOARD_ROOT_PATH } = require('../constants/client-routes');
 
-const createResetPasswordEmail = resetToken => {
+const RESET_PASSWORD_TEMPLATE_ID = 'd-b444d727384e40f38efad1175b6681e7';
+
+const createResetPasswordEmail = ({ name }, resetToken) => {
   const resetPasswordUrl = `${CLIENT_URL}/${DASHBOARD_ROOT_PATH}/resetPassword/${resetToken}`;
   return {
-    subject: `Raising the Roof Password Reset Attempt`,
-    html: `Reset your password <a href="${resetPasswordUrl}">here</a>.`,
+    template_id: RESET_PASSWORD_TEMPLATE_ID,
+    dynamic_template_data: {
+      resetPasswordUrl,
+      name,
+    },
   };
 };
 
@@ -29,8 +34,10 @@ const createResetAttemptEmail = () => {
   };
 };
 
-const sendResetPasswordLink = (email, resetToken) => {
-  const message = resetToken ? createResetPasswordEmail(resetToken) : createResetAttemptEmail();
+const sendResetPasswordLink = ({ email, firstName, lastName }, resetToken) => {
+  const message = resetToken
+    ? createResetPasswordEmail({ name: `${firstName} ${lastName}` }, resetToken)
+    : createResetAttemptEmail();
   const resetEmail = { to: { email }, ...message };
   return sendEmail(resetEmail);
 };
@@ -47,7 +54,7 @@ const authResolvers = {
       try {
         return models.User.findOne({ where: { email } }).then(user => {
           const resetToken = user ? createNewPasswordResetToken(user.id) : null;
-          sendResetPasswordLink(email, resetToken);
+          sendResetPasswordLink(user, resetToken);
           return true;
         });
       } catch (error) {
@@ -80,7 +87,7 @@ const authResolvers = {
           user.verificationHash = null;
           await user.save();
         } else {
-          const message = createVerificationEmail(user.verificationHash);
+          const message = createVerificationEmail(`${firstName} ${lastName}`, user.verificationHash);
           const verificationEmail = { to: { email }, ...message };
           sendEmail(verificationEmail);
         }

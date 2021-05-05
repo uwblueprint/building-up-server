@@ -4,6 +4,8 @@ const sgMail = require('@sendgrid/mail');
 const { SENDGRID_API_KEY, CLIENT_URL, EMAIL_FROM_ADDRESS, EMAIL_REPLYTO_ADDRESS } = require('../config/config');
 const { DASHBOARD_ROOT_PATH } = require('../constants/client-routes');
 
+const VERIFY_EMAIL_TEMPLATE_ID = 'd-9446d43004094066ab95ae2f9e1ca623';
+
 sgMail.setApiKey(SENDGRID_API_KEY);
 
 const emailBase = {
@@ -14,16 +16,19 @@ const emailBase = {
   replyTo: EMAIL_REPLYTO_ADDRESS,
 };
 
-const createVerificationEmail = hash => {
+const createVerificationEmail = (name, hash) => {
   if (hash == null) {
     throw new Error('Null Hash');
   }
 
-  const inviteUrl = `${CLIENT_URL}/${DASHBOARD_ROOT_PATH}/verify/${hash}`;
+  const verifyEmailUrl = `${CLIENT_URL}/${DASHBOARD_ROOT_PATH}/verify/${hash}`;
 
   return {
-    subject: `Verify your email for Raising the Roof's Toque Campaign`,
-    html: `Thank you for signing up! Please verify your email <a href="${inviteUrl}">here</a>.`,
+    template_id: VERIFY_EMAIL_TEMPLATE_ID,
+    dynamic_template_data: {
+      verifyEmailUrl,
+      name,
+    },
   };
 };
 
